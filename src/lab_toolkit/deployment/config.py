@@ -49,3 +49,39 @@ def load_expected_config(project_dir: Path | None = None) -> dict:
     """Charge deployment_expected.json."""
 
     return load_json_file(EXPECTED_CONFIG_FILENAME, project_dir)
+
+
+
+def save_config(
+    config: dict,
+    project_dir: Path | None = None,
+) -> None:
+    """Enregistre deployment.json de manière sécurisée."""
+
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    config_path = project_dir / CONFIG_FILENAME
+    temporary_path = config_path.with_suffix(".json.tmp")
+
+    try:
+        with temporary_path.open("w", encoding="utf-8") as config_file:
+            json.dump(
+                config,
+                config_file,
+                indent=4,
+                ensure_ascii=False,
+            )
+            config_file.write("\n")
+
+        temporary_path.replace(config_path)
+
+    except OSError as error:
+        try:
+            temporary_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+        raise ConfigurationError(
+            f"Impossible d'enregistrer {config_path} : {error}"
+        ) from error
