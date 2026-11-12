@@ -8,13 +8,11 @@ from lab_toolkit.exceptions import LabToolkitError
 @handle_errors("Configuration de déploiement valide.")
 def validate(args):
     """Vérifie la configuration de déploiement."""
-
     validate_pipeline()
 
 
-def configure(args):
-    """Prépare ou applique la configuration de déploiement."""
-
+def show_config(args):
+    """Affiche la configuration de déploiement proposée."""
     try:
         current_config = load_config()
 
@@ -31,13 +29,30 @@ def configure(args):
         print(f"  remoteDir : {new_config['remoteDir']}")
         print(f"  base      : {new_config['base']}")
 
-        if not args.apply:
-            print("\nAucune modification effectuée. Utilisez --apply pour enregistrer.")
-            return 0
+        print("\nAucune modification effectuée.")
+        return 0
+
+    except LabToolkitError as error:
+        print(f"ERREUR : {error}")
+        return 1
+
+
+def apply_config(args):
+    """Calcule et enregistre la configuration de déploiement."""
+    try:
+        current_config = load_config()
+
+        new_config = {
+            **current_config,
+            **build_deployment_config(),
+        }
 
         save_config(new_config)
 
-        print("\nConfiguration de déploiement mise à jour.")
+        print("Configuration de déploiement mise à jour.")
+        print(f"  remoteDir : {new_config['remoteDir']}")
+        print(f"  base      : {new_config['base']}")
+
         return 0
 
     except LabToolkitError as error:
@@ -62,15 +77,14 @@ def add_deployment_commands(subparsers):
     )
     validate_parser.set_defaults(func=validate)
 
-    configure_parser = deployment_subparsers.add_parser(
-        "configure",
-        help="Préparer la configuration de déploiement.",
+    show_config_parser = deployment_subparsers.add_parser(
+        "show_config",
+        help="Afficher la configuration de déploiement proposée.",
     )
+    show_config_parser.set_defaults(func=show_config)
 
-    configure_parser.add_argument(
-        "--apply",
-        action="store_true",
-        help="Enregistrer la configuration proposée.",
+    apply_config_parser = deployment_subparsers.add_parser(
+        "apply_config",
+        help="Appliquer la configuration de déploiement calculée.",
     )
-
-    configure_parser.set_defaults(func=configure)
+    apply_config_parser.set_defaults(func=apply_config)

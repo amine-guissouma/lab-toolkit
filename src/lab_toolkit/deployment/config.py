@@ -22,7 +22,7 @@ def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
         )
 
     try:
-        with config_path.open("r", encoding="utf-8") as config_file:
+        with config_path.open("r", encoding="utf-8-sig") as config_file:
             config = json.load(config_file)
 
     except json.JSONDecodeError as error:

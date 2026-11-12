@@ -7,7 +7,6 @@ from lab_toolkit.deployment.config import load_config, load_expected_config, sav
 from lab_toolkit.exceptions import ConfigurationError
 
 
-## load_config
 def test_load_config_valid(tmp_path):
     """Vérifie le chargement d'une configuration valide."""
 
@@ -209,3 +208,19 @@ def test_save_config_handles_temporary_file_creation_failure(
             {"remoteDir": "/nouvelle-valeur", "base": "/"},
             tmp_path,
         )
+
+
+def test_load_config_supports_utf8_bom(tmp_path):
+    config_path = tmp_path / "deployment.json"
+
+    config_path.write_text(
+        '\ufeff{"remoteDir": "/var/www/test", "base": "/"}',
+        encoding="utf-8",
+    )
+
+    config = load_config(tmp_path)
+
+    assert config == {
+        "remoteDir": "/var/www/test",
+        "base": "/",
+    }
