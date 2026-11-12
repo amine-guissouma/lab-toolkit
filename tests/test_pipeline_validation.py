@@ -2,20 +2,20 @@ from unittest.mock import patch
 
 import pytest
 
-from lab_toolkit.deployment.pipeline_validation import validate_pipeline
+from lab_toolkit.deployment.pipeline.validation_config import validate_pipeline
 from lab_toolkit.exceptions import (
     BranchError,
     ConfigurationError,
 )
 
 
-@patch("lab_toolkit.deployment.pipeline_validation.validate_paths")
-@patch("lab_toolkit.deployment.pipeline_validation.build_expected_paths")
-@patch("lab_toolkit.deployment.pipeline_validation.get_current_branch")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_paths")
+@patch("lab_toolkit.deployment.pipeline.validation_config.build_expected_paths")
+@patch("lab_toolkit.deployment.pipeline.validation_config.get_current_branch")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
 def test_validate_pipeline_success(
     mock_load_config,
     mock_validate_required,
@@ -52,8 +52,8 @@ def test_validate_pipeline_success(
     mock_validate_paths.assert_called_once()
 
 
-@patch("lab_toolkit.deployment.pipeline_validation.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
 def test_validate_pipeline_stops_if_config_is_invalid(
     mock_load_config,
     mock_validate_required,
@@ -70,10 +70,10 @@ def test_validate_pipeline_stops_if_config_is_invalid(
     mock_validate_required.assert_called_once()
 
 
-@patch("lab_toolkit.deployment.pipeline_validation.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
 def test_validate_pipeline_stops_if_expected_config_is_invalid(
     mock_load_config,
     mock_validate_required,
@@ -96,11 +96,11 @@ def test_validate_pipeline_stops_if_expected_config_is_invalid(
     mock_validate_expected.assert_called_once()
 
 
-@patch("lab_toolkit.deployment.pipeline_validation.get_current_branch")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.get_current_branch")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
 def test_validate_pipeline_stops_if_branch_is_invalid(
     mock_load_config,
     mock_validate_required,
@@ -119,7 +119,7 @@ def test_validate_pipeline_stops_if_branch_is_invalid(
 
     with (
         patch(
-            "lab_toolkit.deployment.pipeline_validation.build_expected_paths",
+            "lab_toolkit.deployment.pipeline.validation_config.build_expected_paths",
             side_effect=BranchError(["Branche Git non prise en charge : master"]),
         ),
         pytest.raises(BranchError),
@@ -127,13 +127,13 @@ def test_validate_pipeline_stops_if_branch_is_invalid(
         validate_pipeline()
 
 
-@patch("lab_toolkit.deployment.pipeline_validation.validate_paths")
-@patch("lab_toolkit.deployment.pipeline_validation.build_expected_paths")
-@patch("lab_toolkit.deployment.pipeline_validation.get_current_branch")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline_validation.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline_validation.load_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_paths")
+@patch("lab_toolkit.deployment.pipeline.validation_config.build_expected_paths")
+@patch("lab_toolkit.deployment.pipeline.validation_config.get_current_branch")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
+@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
+@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
 def test_validate_pipeline_stops_if_paths_are_invalid(
     mock_load_config,
     mock_validate_required,

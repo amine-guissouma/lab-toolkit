@@ -11,14 +11,14 @@ def handle_errors(success_message: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
             try:
-                func(*args, **kwargs)
+                result = func(*args, **kwargs)
 
             except LabToolkitError as error:
                 print(f"ERREUR : {error}")
                 return 1
 
             print(success_message)
-            return 0
+            return result if isinstance(result, int) else 0
 
         return wrapper
 

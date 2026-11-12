@@ -1,39 +1,36 @@
 from types import SimpleNamespace
 
+import pytest
+
 from lab_toolkit.cli.commands import deployment
 from lab_toolkit.exceptions import BranchError, ConfigurationError
 
-CURRENT_CONFIG = {
-    "remoteDir": "/var/www/labs/test-project",
-    "base": "/",
-}
 
-PROPOSED_CONFIG = {
-    "remoteDir": "/var/www/labs/lab-front-react/socle",
-    "base": "/",
-}
-
-
-def test_show_config_displays_configuration_without_saving(
-    monkeypatch,
-    capsys,
-):
-    saved_configs = []
+def test_validate_calls_pipeline(monkeypatch, capsys):
+    called = []
 
     monkeypatch.setattr(
         deployment,
-        "load_config",
-        lambda: CURRENT_CONFIG,
+        "validate_pipeline",
+        lambda: called.append(True),
     )
+
+    result = deployment.validate(SimpleNamespace())
+
+    output = capsys.readouterr().out
+
+    assert result == 0
+    assert called == [True]
+    assert output == "Configuration de déploiement valide.\n"
+
+
+def test_show_config_calls_pipeline(monkeypatch, capsys):
+    called = []
+
     monkeypatch.setattr(
         deployment,
-        "build_deployment_config",
-        lambda: PROPOSED_CONFIG,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "save_config",
-        lambda config: saved_configs.append(config),
+        "show_config_pipeline",
+        lambda: called.append(True),
     )
 
     result = deployment.show_config(SimpleNamespace())
@@ -41,59 +38,17 @@ def test_show_config_displays_configuration_without_saving(
     output = capsys.readouterr().out
 
     assert result == 0
-    assert "Configuration actuelle" in output
-    assert "Configuration proposée" in output
-    assert "Aucune modification effectuée" in output
-    assert saved_configs == []
+    assert called == [True]
+    assert output == "Aucune modification effectuée.\n"
 
 
-def test_show_config_handles_invalid_branch(
-    monkeypatch,
-    capsys,
-):
-    monkeypatch.setattr(
-        deployment,
-        "load_config",
-        lambda: CURRENT_CONFIG,
-    )
-
-    def raise_branch_error():
-        raise BranchError(["Branche Git non prise en charge : master"])
+def test_apply_config_calls_pipeline(monkeypatch, capsys):
+    called = []
 
     monkeypatch.setattr(
         deployment,
-        "build_deployment_config",
-        raise_branch_error,
-    )
-
-    result = deployment.show_config(SimpleNamespace())
-
-    output = capsys.readouterr().out
-
-    assert result == 1
-    assert "master" in output
-
-
-def test_apply_config_saves_configuration(
-    monkeypatch,
-    capsys,
-):
-    saved_configs = []
-
-    monkeypatch.setattr(
-        deployment,
-        "load_config",
-        lambda: CURRENT_CONFIG,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "build_deployment_config",
-        lambda: PROPOSED_CONFIG,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "save_config",
-        lambda config: saved_configs.append(config),
+        "apply_config_pipeline",
+        lambda: called.append(True),
     )
 
     result = deployment.apply_config(SimpleNamespace())
@@ -101,131 +56,32 @@ def test_apply_config_saves_configuration(
     output = capsys.readouterr().out
 
     assert result == 0
-    assert saved_configs == [PROPOSED_CONFIG]
-    assert "Configuration de déploiement mise à jour." in output
+    assert called == [True]
+    assert output == "Configuration de déploiement mise à jour.\n"
 
 
-def test_apply_config_preserves_additional_fields(
-    monkeypatch,
-):
-    current_config = {
-        **CURRENT_CONFIG,
-        "champ1": "valeur1",
-        "champ2": "valeur2",
-    }
-
-    saved_configs = []
-
-    monkeypatch.setattr(
-        deployment,
-        "load_config",
-        lambda: current_config,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "build_deployment_config",
-        lambda: PROPOSED_CONFIG,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "save_config",
-        lambda config: saved_configs.append(config),
-    )
-
-    result = deployment.apply_config(SimpleNamespace())
-
-    assert result == 0
-    assert saved_configs == [
-        {
-            **PROPOSED_CONFIG,
-            "champ1": "valeur1",
-            "champ2": "valeur2",
-        }
-    ]
-
-
-def test_apply_config_handles_invalid_branch(
+@pytest.mark.parametrize(
+    ("command", "pipeline_name", "exception"),
+    [
+        ("show_config", "show_config_pipeline", BranchError),
+        ("apply_config", "apply_config_pipeline", ConfigurationError),
+    ],
+)
+def test_commands_handle_pipeline_errors(
     monkeypatch,
     capsys,
+    command,
+    pipeline_name,
+    exception,
 ):
-    saved_configs = []
+    def raise_error():
+        raise exception(["Erreur de test"])
 
-    monkeypatch.setattr(
-        deployment,
-        "load_config",
-        lambda: CURRENT_CONFIG,
-    )
+    monkeypatch.setattr(deployment, pipeline_name, raise_error)
 
-    def raise_branch_error():
-        raise BranchError(["Branche Git non prise en charge : master"])
-
-    monkeypatch.setattr(
-        deployment,
-        "build_deployment_config",
-        raise_branch_error,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "save_config",
-        lambda config: saved_configs.append(config),
-    )
-
-    result = deployment.apply_config(SimpleNamespace())
+    result = getattr(deployment, command)(SimpleNamespace())
 
     output = capsys.readouterr().out
 
     assert result == 1
-    assert "master" in output
-    assert saved_configs == []
-
-
-def test_show_config_handles_configuration_error(
-    monkeypatch,
-    capsys,
-):
-    def raise_configuration_error():
-        raise ConfigurationError(["Fichier de configuration introuvable."])
-
-    monkeypatch.setattr(
-        deployment,
-        "load_config",
-        raise_configuration_error,
-    )
-
-    result = deployment.show_config(SimpleNamespace())
-
-    output = capsys.readouterr().out
-
-    assert result == 1
-    assert "Fichier de configuration introuvable" in output
-
-
-def test_apply_config_handles_save_error(
-    monkeypatch,
-    capsys,
-):
-    def raise_save_error(config):
-        raise ConfigurationError(["Impossible d'enregistrer deployment.json."])
-
-    monkeypatch.setattr(
-        deployment,
-        "load_config",
-        lambda: CURRENT_CONFIG,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "build_deployment_config",
-        lambda: PROPOSED_CONFIG,
-    )
-    monkeypatch.setattr(
-        deployment,
-        "save_config",
-        raise_save_error,
-    )
-
-    result = deployment.apply_config(SimpleNamespace())
-
-    output = capsys.readouterr().out
-
-    assert result == 1
-    assert "Impossible d'enregistrer" in output
+    assert "ERREUR : - Erreur de test" in output

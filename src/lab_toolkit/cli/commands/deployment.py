@@ -1,8 +1,7 @@
 from lab_toolkit.decorators.cli import handle_errors
-from lab_toolkit.deployment.config import load_config, save_config
-from lab_toolkit.deployment.configuration import build_deployment_config
-from lab_toolkit.deployment.pipeline_validation import validate_pipeline
-from lab_toolkit.exceptions import LabToolkitError
+from lab_toolkit.deployment.pipeline.apply_config_pipeline import apply_config_pipeline
+from lab_toolkit.deployment.pipeline.show_config_pipeline import show_config_pipeline
+from lab_toolkit.deployment.pipeline.validation_config import validate_pipeline
 
 
 @handle_errors("Configuration de déploiement valide.")
@@ -11,53 +10,16 @@ def validate(args):
     validate_pipeline()
 
 
+@handle_errors("Aucune modification effectuée.")
 def show_config(args):
     """Affiche la configuration de déploiement proposée."""
-    try:
-        current_config = load_config()
-
-        new_config = {
-            **current_config,
-            **build_deployment_config(),
-        }
-
-        print("Configuration actuelle :")
-        print(f"  remoteDir : {current_config['remoteDir']}")
-        print(f"  base      : {current_config['base']}")
-
-        print("\nConfiguration proposée :")
-        print(f"  remoteDir : {new_config['remoteDir']}")
-        print(f"  base      : {new_config['base']}")
-
-        print("\nAucune modification effectuée.")
-        return 0
-
-    except LabToolkitError as error:
-        print(f"ERREUR : {error}")
-        return 1
+    show_config_pipeline()
 
 
+@handle_errors("Configuration de déploiement mise à jour.")
 def apply_config(args):
     """Calcule et enregistre la configuration de déploiement."""
-    try:
-        current_config = load_config()
-
-        new_config = {
-            **current_config,
-            **build_deployment_config(),
-        }
-
-        save_config(new_config)
-
-        print("Configuration de déploiement mise à jour.")
-        print(f"  remoteDir : {new_config['remoteDir']}")
-        print(f"  base      : {new_config['base']}")
-
-        return 0
-
-    except LabToolkitError as error:
-        print(f"ERREUR : {error}")
-        return 1
+    apply_config_pipeline()
 
 
 def add_deployment_commands(subparsers):
