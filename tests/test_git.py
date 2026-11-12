@@ -2,7 +2,7 @@
 import subprocess
 
 import pytest
-
+from lab_toolkit.exceptions import GitError
 from lab_toolkit.deployment.git import get_current_branch
 
 
@@ -41,5 +41,5 @@ def test_get_current_branch_empty(monkeypatch):
         mock_run,
     )
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(GitError):
         get_current_branch()

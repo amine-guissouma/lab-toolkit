@@ -1,11 +1,17 @@
+
 from pathlib import PurePosixPath
 
-REQUIRED_FIELDS = ("remoteDir", "base")
+from lab_toolkit.exceptions import (
+    BranchError,
+    ConfigurationError,
+)
 
+
+REQUIRED_FIELDS = ("remoteDir", "base")
 EXPECTED_REQUIRED_FIELDS = ("expectedRemoteDir",)
 
 
-def validate_required_fields(config: dict) -> list[str]:
+def validate_required_fields(config: dict) -> None:
     """Vérifie la présence, le type et la valeur des paramètres."""
 
     errors = []
@@ -26,14 +32,17 @@ def validate_required_fields(config: dict) -> list[str]:
                 f"Le paramètre {field} ne peut pas être vide."
             )
 
-    return errors
+    if errors:
+        raise ConfigurationError(errors)
 
 
-def validate_branch(branch: str) -> list[str]:
+def validate_branch(branch: str) -> None:
     """Vérifie que la branche Git est autorisée."""
 
+    errors = []
+
     if branch == "socle":
-        return []
+        return
 
     if branch.startswith("experience/"):
         experience_path = branch.removeprefix("experience/")
@@ -42,22 +51,24 @@ def validate_branch(branch: str) -> list[str]:
         if not experience_path or any(
             not segment for segment in path_segments
         ):
-            return [
+            errors.append(
                 f"Nom de branche d'expérience invalide : {branch}"
-            ]
+            )
 
-        return []
+    else:
+        errors.append(
+            f"Branche Git non prise en charge : {branch}"
+        )
 
-    return [
-        f"Branche Git non prise en charge : {branch}"
-    ]
+    if errors:
+        raise BranchError(errors)
 
 
 def validate_paths(
     config: dict,
     expected_remote: str,
     expected_base: str,
-) -> list[str]:
+) -> None:
     """Compare les chemins configurés avec les chemins attendus."""
 
     errors = []
@@ -74,35 +85,21 @@ def validate_paths(
             f"obtenu : {config['base']}"
         )
 
-    return errors
-
-
-def validate_config(
-    config: dict,
-    expected_remote: str,
-    expected_base: str,
-) -> list[str]:
-    """Orchestre la validation de la configuration."""
-
-    errors = validate_required_fields(config)
-
     if errors:
-        return errors
+        raise ConfigurationError(errors)
 
-    return validate_paths(
-        config,
-        expected_remote,
-        expected_base,
-    )
 
-def validate_expected_fields(config: dict) -> list[str]:
+
+def validate_expected_fields(config: dict) -> None:
     """Vérifie les paramètres obligatoires de deployment_expected.json."""
 
     errors = []
 
     for field in EXPECTED_REQUIRED_FIELDS:
         if field not in config:
-            errors.append(f"Paramètre attendu manquant : {field}")
+            errors.append(
+                f"Paramètre attendu manquant : {field}"
+            )
             continue
 
         value = config[field]
@@ -111,17 +108,25 @@ def validate_expected_fields(config: dict) -> list[str]:
             errors.append(
                 f"Le paramètre {field} doit être une chaîne de caractères."
             )
-        elif not value.strip():
+            continue
+
+        if not value.strip():
             errors.append(
                 f"Le paramètre {field} ne peut pas être vide."
             )
-        elif field == "expectedRemoteDir" and value != value.strip():
-            errors.append(
-                "Le paramètre expectedRemoteDir ne doit pas contenir "
-                "d'espaces au début ou à la fin."
-            )
-        elif field == "expectedRemoteDir" and not PurePosixPath(value).is_absolute():
-            errors.append(
-                "Le paramètre expectedRemoteDir doit être un chemin absolu."
-            )
-    return errors
+            continue
+
+        if field == "expectedRemoteDir":
+            if value != value.strip():
+                errors.append(
+                    "Le paramètre expectedRemoteDir ne doit pas contenir "
+                    "d'espaces au début ou à la fin."
+                )
+
+            if not PurePosixPath(value).is_absolute():
+                errors.append(
+                    "Le paramètre expectedRemoteDir doit être un chemin absolu."
+                )
+
+    if errors:
+        raise ConfigurationError(errors)

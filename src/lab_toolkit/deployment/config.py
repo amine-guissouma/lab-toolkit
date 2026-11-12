@@ -2,13 +2,7 @@
 import json
 from pathlib import Path
 
-
-CONFIG_FILENAME = "deployment.json"
-
-
-
-import json
-from pathlib import Path
+from lab_toolkit.exceptions import ConfigurationError
 
 
 CONFIG_FILENAME = "deployment.json"
@@ -24,7 +18,7 @@ def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
     config_path = project_dir / filename
 
     if not config_path.is_file():
-        raise FileNotFoundError(
+        raise ConfigurationError(
             f"Fichier de configuration introuvable : {config_path}"
         )
 
@@ -33,12 +27,12 @@ def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
             config = json.load(config_file)
 
     except json.JSONDecodeError as error:
-        raise ValueError(
+        raise ConfigurationError(
             f"Le fichier {filename} contient un JSON invalide : {error}"
         ) from error
 
     if not isinstance(config, dict):
-        raise ValueError(
+        raise ConfigurationError(
             f"Le contenu de {filename} doit être un objet JSON."
         )
 

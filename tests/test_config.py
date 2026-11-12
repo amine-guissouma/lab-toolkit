@@ -1,4 +1,4 @@
-
+from lab_toolkit.exceptions import ConfigurationError
 import json
 
 import pytest
@@ -26,7 +26,7 @@ def test_load_config_valid(tmp_path):
 def test_load_config_missing_file(tmp_path):
     """Vérifie le comportement si deployment.json est absent."""
 
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ConfigurationError):
         load_config(tmp_path)
 
 
@@ -36,7 +36,7 @@ def test_load_config_invalid_json(tmp_path):
     config_file = tmp_path / "deployment.json"
     config_file.write_text("{invalid json}", encoding="utf-8")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ConfigurationError):
         load_config(tmp_path)
 
 
@@ -46,7 +46,7 @@ def test_load_config_requires_json_object(tmp_path):
     config_file = tmp_path / "deployment.json"
     config_file.write_text('["socle", "experience"]', encoding="utf-8")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ConfigurationError):
         load_config(tmp_path)
 
 
@@ -75,7 +75,7 @@ def test_load_expected_config_valid(tmp_path):
 def test_load_expected_config_missing_file(tmp_path):
     """Vérifie le comportement si le fichier est absent."""
 
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ConfigurationError):
         load_expected_config(tmp_path)
 
 
@@ -85,7 +85,7 @@ def test_load_expected_config_invalid_json(tmp_path):
     config_file = tmp_path / "deployment_expected.json"
     config_file.write_text("{invalid json}", encoding="utf-8")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ConfigurationError):
         load_expected_config(tmp_path)
 
 
@@ -95,5 +95,5 @@ def test_load_expected_config_requires_json_object(tmp_path):
     config_file = tmp_path / "deployment_expected.json"
     config_file.write_text('["socle", "experience"]', encoding="utf-8")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ConfigurationError):
         load_expected_config(tmp_path)

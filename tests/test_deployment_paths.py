@@ -1,7 +1,7 @@
-
+from lab_toolkit.exceptions import BranchError
 import pytest
 
-from lab_toolkit.cli.commands.deployment import build_expected_paths
+from lab_toolkit.deployment.paths import build_expected_paths
 
 
 EXPECTED_REMOTE_DIR = "/var/www/labs/lab-front-react"
@@ -73,7 +73,7 @@ def test_build_expected_paths_preserves_branch_name():
     ],
 )
 def test_build_expected_paths_invalid_branch(branch):
-    with pytest.raises(ValueError):
+    with pytest.raises(BranchError):
         build_expected_paths(
             branch,
             "/var/www/labs/lab-front-react",
