@@ -1,12 +1,11 @@
-from pathlib import Path
-
-from lab_toolkit.exceptions import ConfigurationError
 import json
+from pathlib import Path
 
 import pytest
 
-from lab_toolkit.deployment.config import load_config, save_config
-from lab_toolkit.deployment.config import load_expected_config
+from lab_toolkit.deployment.config import load_config, load_expected_config, save_config
+from lab_toolkit.exceptions import ConfigurationError
+
 
 ## load_config
 def test_load_config_valid(tmp_path):
@@ -52,9 +51,8 @@ def test_load_config_requires_json_object(tmp_path):
         load_config(tmp_path)
 
 
-
-
 ## load_expected_config
+
 
 def test_load_expected_config_valid(tmp_path):
     """Vérifie le chargement de deployment_expected.json."""
@@ -99,7 +97,6 @@ def test_load_expected_config_requires_json_object(tmp_path):
 
     with pytest.raises(ConfigurationError):
         load_expected_config(tmp_path)
-
 
 
 def test_save_config_valid(tmp_path):
@@ -149,9 +146,7 @@ def test_save_config_preserves_existing_file_on_write_failure(
     with pytest.raises(ConfigurationError):
         save_config(new_config, tmp_path)
 
-    saved_config = json.loads(
-        config_file.read_text(encoding="utf-8")
-    )
+    saved_config = json.loads(config_file.read_text(encoding="utf-8"))
 
     assert saved_config == original_config
 
@@ -165,11 +160,10 @@ def test_save_config_supports_unicode(tmp_path):
 
     save_config(config, tmp_path)
 
-    content = (tmp_path / "deployment.json").read_text(
-        encoding="utf-8"
-    )
+    content = (tmp_path / "deployment.json").read_text(encoding="utf-8")
 
     assert "Expérience française" in content
+
 
 def test_save_config_preserves_existing_file_on_replace_failure(
     tmp_path,
@@ -199,6 +193,7 @@ def test_save_config_preserves_existing_file_on_replace_failure(
     )
 
     assert not (tmp_path / "deployment.json.tmp").exists()
+
 
 def test_save_config_handles_temporary_file_creation_failure(
     tmp_path,

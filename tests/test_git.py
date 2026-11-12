@@ -1,9 +1,9 @@
-
 import subprocess
 
 import pytest
-from lab_toolkit.exceptions import GitError
+
 from lab_toolkit.deployment.git import get_current_branch
+from lab_toolkit.exceptions import GitError
 
 
 def test_get_current_branch(monkeypatch):

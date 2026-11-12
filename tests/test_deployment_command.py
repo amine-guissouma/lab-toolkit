@@ -1,9 +1,7 @@
-
 from types import SimpleNamespace
 
 from lab_toolkit.cli.commands import deployment
 from lab_toolkit.exceptions import BranchError
-
 
 CURRENT_CONFIG = {
     "remoteDir": "/var/www/labs/test-project",
@@ -38,9 +36,7 @@ def test_configure_without_apply_does_not_save(
         lambda config: saved_configs.append(config),
     )
 
-    result = deployment.configure(
-        SimpleNamespace(apply=False)
-    )
+    result = deployment.configure(SimpleNamespace(apply=False))
 
     output = capsys.readouterr().out
 
@@ -72,9 +68,7 @@ def test_configure_with_apply_saves_config(
         lambda config: saved_configs.append(config),
     )
 
-    result = deployment.configure(
-        SimpleNamespace(apply=True)
-    )
+    result = deployment.configure(SimpleNamespace(apply=True))
 
     output = capsys.readouterr().out
 
@@ -109,15 +103,14 @@ def test_configure_invalid_branch_does_not_save(
         lambda config: saved_configs.append(config),
     )
 
-    result = deployment.configure(
-        SimpleNamespace(apply=True)
-    )
+    result = deployment.configure(SimpleNamespace(apply=True))
 
     output = capsys.readouterr().out
 
     assert result == 1
     assert "master" in output
     assert saved_configs == []
+
 
 def test_configure_with_apply_preserves_additional_fields(
     monkeypatch,
@@ -153,9 +146,7 @@ def test_configure_with_apply_preserves_additional_fields(
         lambda config: saved_configs.append(config),
     )
 
-    result = deployment.configure(
-        SimpleNamespace(apply=True)
-    )
+    result = deployment.configure(SimpleNamespace(apply=True))
 
     capsys.readouterr()
 

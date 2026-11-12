@@ -1,13 +1,12 @@
-
 from unittest.mock import patch
 
 import pytest
 
+from lab_toolkit.deployment.pipeline_validation import validate_pipeline
 from lab_toolkit.exceptions import (
     BranchError,
     ConfigurationError,
 )
-from lab_toolkit.deployment.pipeline_validation import validate_pipeline
 
 
 @patch("lab_toolkit.deployment.pipeline_validation.validate_paths")
@@ -118,12 +117,14 @@ def test_validate_pipeline_stops_if_branch_is_invalid(
     }
     mock_get_branch.return_value = "master"
 
-    with patch(
-        "lab_toolkit.deployment.pipeline_validation.build_expected_paths",
-        side_effect=BranchError(["Branche Git non prise en charge : master"]),
+    with (
+        patch(
+            "lab_toolkit.deployment.pipeline_validation.build_expected_paths",
+            side_effect=BranchError(["Branche Git non prise en charge : master"]),
+        ),
+        pytest.raises(BranchError),
     ):
-        with pytest.raises(BranchError):
-            validate_pipeline()
+        validate_pipeline()
 
 
 @patch("lab_toolkit.deployment.pipeline_validation.validate_paths")
@@ -155,9 +156,7 @@ def test_validate_pipeline_stops_if_paths_are_invalid(
         "/",
     )
 
-    mock_validate_paths.side_effect = ConfigurationError(
-        ["remoteDir incorrect"]
-    )
+    mock_validate_paths.side_effect = ConfigurationError(["remoteDir incorrect"])
 
     with pytest.raises(ConfigurationError):
         validate_pipeline()

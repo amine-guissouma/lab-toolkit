@@ -1,10 +1,4 @@
-
 import pytest
-
-from lab_toolkit.exceptions import (
-    BranchError,
-    ConfigurationError,
-)
 
 from lab_toolkit.deployment.validation import (
     validate_branch,
@@ -12,7 +6,10 @@ from lab_toolkit.deployment.validation import (
     validate_paths,
     validate_required_fields,
 )
-
+from lab_toolkit.exceptions import (
+    BranchError,
+    ConfigurationError,
+)
 
 EXPECTED_REMOTE = "/var/www/labs/lab-front-react/socle"
 EXPECTED_BASE = "/"
@@ -76,6 +73,7 @@ def test_validate_required_fields_empty():
 
 # ===== validate_branch =====
 
+
 def test_validate_branch_socle():
     """Vérifie que la branche socle est autorisée."""
 
@@ -110,6 +108,7 @@ def test_validate_branch_unknown():
 
 # ===== validate_paths =====
 
+
 def test_validate_paths_valid():
     """Vérifie que les chemins correspondent aux valeurs attendues."""
 
@@ -118,11 +117,14 @@ def test_validate_paths_valid():
         "base": EXPECTED_BASE,
     }
 
-    assert validate_paths(
-        config,
-        EXPECTED_REMOTE,
-        EXPECTED_BASE,
-    ) is None
+    assert (
+        validate_paths(
+            config,
+            EXPECTED_REMOTE,
+            EXPECTED_BASE,
+        )
+        is None
+    )
 
 
 def test_validate_paths_invalid():
@@ -146,6 +148,7 @@ def test_validate_paths_invalid():
 
 
 # ===== validate_expected_fields =====
+
 
 def test_validate_expected_fields_valid():
     """Vérifie une configuration attendue valide."""

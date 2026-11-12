@@ -1,4 +1,3 @@
-
 import subprocess
 from pathlib import Path
 
@@ -18,15 +17,11 @@ def get_current_branch() -> str:
         )
 
     except subprocess.CalledProcessError as error:
-        raise GitError(
-            "Impossible de récupérer la branche Git courante."
-        ) from error
+        raise GitError("Impossible de récupérer la branche Git courante.") from error
 
     branch = result.stdout.strip()
 
     if not branch:
-        raise GitError(
-            "Impossible de déterminer la branche Git courante."
-        )
+        raise GitError("Impossible de déterminer la branche Git courante.")
 
     return branch

@@ -1,4 +1,3 @@
-
 import argparse
 
 from lab_toolkit.cli.commands.deployment import add_deployment_commands

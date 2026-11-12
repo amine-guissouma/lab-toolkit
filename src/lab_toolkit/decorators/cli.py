@@ -1,4 +1,3 @@
-
 from functools import wraps
 
 from lab_toolkit.exceptions import LabToolkitError

@@ -1,0 +1,52 @@
+
+default_language_version:
+  python: python3.14
+
+repos:
+  # Vérification et correction du code Python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+
+      - id: ruff-format
+
+  # Vérifications générales des fichiers
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+
+      - id: end-of-file-fixer
+        name: Ensure newline at end of files
+
+      - id: check-yaml
+        name: Check YAML syntax
+
+      - id: check-toml
+        name: Check TOML syntax
+
+      - id: check-json
+        name: Check JSON syntax
+
+      - id: check-merge-conflict
+        name: Check merge conflict markers
+
+      - id: detect-private-key
+        name: Detect private keys
+
+      - id: check-added-large-files
+        name: Check large files
+        args: [--maxkb=500]
+
+  # Exécution des tests Python
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Run pytest
+        entry: python -m pytest
+        language: system
+        pass_filenames: false
+        always_run: true

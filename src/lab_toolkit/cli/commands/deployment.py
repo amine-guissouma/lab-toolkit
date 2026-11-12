@@ -1,16 +1,15 @@
-
 from lab_toolkit.decorators.cli import handle_errors
 from lab_toolkit.deployment.config import load_config, save_config
 from lab_toolkit.deployment.configuration import build_deployment_config
 from lab_toolkit.deployment.pipeline_validation import validate_pipeline
 from lab_toolkit.exceptions import LabToolkitError
 
+
 @handle_errors("Configuration de déploiement valide.")
 def validate(args):
     """Vérifie la configuration de déploiement."""
 
     validate_pipeline()
-
 
 
 def configure(args):
@@ -33,17 +32,13 @@ def configure(args):
         print(f"  base      : {new_config['base']}")
 
         if not args.apply:
-            print(
-                "\nAucune modification effectuée. "
-                "Utilisez --apply pour enregistrer."
-            )
+            print("\nAucune modification effectuée. Utilisez --apply pour enregistrer.")
             return 0
 
         save_config(new_config)
 
         print("\nConfiguration de déploiement mise à jour.")
         return 0
-
 
     except LabToolkitError as error:
         print(f"ERREUR : {error}")

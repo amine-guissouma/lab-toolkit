@@ -1,4 +1,3 @@
-
 import pytest
 
 from lab_toolkit.decorators.cli import handle_errors
@@ -31,9 +30,7 @@ def test_handle_errors_configuration_error(capsys):
     captured = capsys.readouterr()
 
     assert result == 1
-    assert captured.out == (
-        "ERREUR : - Configuration invalide\n"
-    )
+    assert captured.out == ("ERREUR : - Configuration invalide\n")
 
 
 def test_handle_errors_git_error(capsys):

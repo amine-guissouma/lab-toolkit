@@ -1,4 +1,3 @@
-
 class LabToolkitError(Exception):
     """Exception de base de lab-toolkit."""
 
@@ -9,11 +8,10 @@ class ValidationError(LabToolkitError):
     def __init__(self, errors: list[str]):
         self.errors = errors
 
-        message = "\n".join(
-            f"- {error}" for error in errors
-        )
+        message = "\n".join(f"- {error}" for error in errors)
 
         super().__init__(message)
+
 
 class ConfigurationError(ValidationError):
     """Erreur liée à la configuration du projet."""

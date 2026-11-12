@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from lab_toolkit.deployment.config import load_expected_config

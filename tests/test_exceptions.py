@@ -1,10 +1,9 @@
-
 from lab_toolkit.exceptions import (
+    BranchError,
+    ConfigurationError,
+    GitError,
     LabToolkitError,
     ValidationError,
-    ConfigurationError,
-    BranchError,
-    GitError,
 )
 
 

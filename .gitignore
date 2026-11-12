@@ -1,1 +1,25 @@
-/.venv/
+# Environnements Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Tests et qualité
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# Environnements
+.env
+.env.*
+!.env.example

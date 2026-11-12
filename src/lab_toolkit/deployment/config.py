@@ -1,9 +1,8 @@
-
+import contextlib
 import json
 from pathlib import Path
 
 from lab_toolkit.exceptions import ConfigurationError
-
 
 CONFIG_FILENAME = "deployment.json"
 EXPECTED_CONFIG_FILENAME = "deployment_expected.json"
@@ -32,9 +31,7 @@ def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
         ) from error
 
     if not isinstance(config, dict):
-        raise ConfigurationError(
-            f"Le contenu de {filename} doit être un objet JSON."
-        )
+        raise ConfigurationError(f"Le contenu de {filename} doit être un objet JSON.")
 
     return config
 
@@ -49,7 +46,6 @@ def load_expected_config(project_dir: Path | None = None) -> dict:
     """Charge deployment_expected.json."""
 
     return load_json_file(EXPECTED_CONFIG_FILENAME, project_dir)
-
 
 
 def save_config(
@@ -77,10 +73,8 @@ def save_config(
         temporary_path.replace(config_path)
 
     except OSError as error:
-        try:
+        with contextlib.suppress(OSError):
             temporary_path.unlink(missing_ok=True)
-        except OSError:
-            pass
 
         raise ConfigurationError(
             f"Impossible d'enregistrer {config_path} : {error}"

@@ -1,8 +1,7 @@
-from lab_toolkit.exceptions import BranchError
 import pytest
 
 from lab_toolkit.deployment.paths import build_expected_paths
-
+from lab_toolkit.exceptions import BranchError
 
 EXPECTED_REMOTE_DIR = "/var/www/labs/lab-front-react"
 
@@ -15,9 +14,7 @@ def test_build_expected_paths_socle():
         EXPECTED_REMOTE_DIR,
     )
 
-    assert expected_remote == (
-        "/var/www/labs/lab-front-react/socle"
-    )
+    assert expected_remote == ("/var/www/labs/lab-front-react/socle")
     assert expected_base == "/"
 
 
@@ -43,9 +40,7 @@ def test_build_expected_paths_nested_experience():
         EXPECTED_REMOTE_DIR,
     )
 
-    assert expected_remote == (
-        "/var/www/labs/lab-front-react/experiences/auth/token"
-    )
+    assert expected_remote == ("/var/www/labs/lab-front-react/experiences/auth/token")
     assert expected_base == "/experiences/auth/token/"
 
 
@@ -57,9 +52,7 @@ def test_build_expected_paths_preserves_branch_name():
         EXPECTED_REMOTE_DIR,
     )
 
-    assert expected_remote.endswith(
-        "/experiences/auth/mon-experience"
-    )
+    assert expected_remote.endswith("/experiences/auth/mon-experience")
     assert expected_base == "/experiences/auth/mon-experience/"
 
 

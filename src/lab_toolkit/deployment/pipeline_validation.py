@@ -5,8 +5,11 @@ from lab_toolkit.deployment.config import (
 from lab_toolkit.deployment.git import get_current_branch
 from lab_toolkit.deployment.paths import build_expected_paths
 from lab_toolkit.deployment.validation import (
-    validate_expected_fields, validate_paths, validate_required_fields,
+    validate_expected_fields,
+    validate_paths,
+    validate_required_fields,
 )
+
 
 def validate_pipeline() -> None:
     """Orchestre le pipeline complet de validation du déploiement."""
@@ -16,7 +19,6 @@ def validate_pipeline() -> None:
 
     expected_config = load_expected_config()
     validate_expected_fields(expected_config)
-
 
     branch = get_current_branch()
 

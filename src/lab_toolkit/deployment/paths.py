@@ -1,4 +1,3 @@
-
 from pathlib import PurePosixPath
 
 from lab_toolkit.deployment.validation import validate_branch
@@ -39,9 +38,7 @@ def get_expected_experience(
 
     experience_path = branch.removeprefix("experience/")
 
-    expected_remote = str(
-        root / "experiences" / experience_path
-    )
+    expected_remote = str(root / "experiences" / experience_path)
     expected_base = f"/experiences/{experience_path}/"
 
     return expected_remote, expected_base

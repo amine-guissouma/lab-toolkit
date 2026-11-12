@@ -1,11 +1,9 @@
-
 from pathlib import PurePosixPath
 
 from lab_toolkit.exceptions import (
     BranchError,
     ConfigurationError,
 )
-
 
 REQUIRED_FIELDS = ("remoteDir", "base")
 EXPECTED_REQUIRED_FIELDS = ("expectedRemoteDir",)
@@ -24,13 +22,9 @@ def validate_required_fields(config: dict) -> None:
         value = config[field]
 
         if not isinstance(value, str):
-            errors.append(
-                f"Le paramètre {field} doit être une chaîne de caractères."
-            )
+            errors.append(f"Le paramètre {field} doit être une chaîne de caractères.")
         elif not value.strip():
-            errors.append(
-                f"Le paramètre {field} ne peut pas être vide."
-            )
+            errors.append(f"Le paramètre {field} ne peut pas être vide.")
 
     if errors:
         raise ConfigurationError(errors)
@@ -48,17 +42,11 @@ def validate_branch(branch: str) -> None:
         experience_path = branch.removeprefix("experience/")
         path_segments = experience_path.split("/")
 
-        if not experience_path or any(
-            not segment for segment in path_segments
-        ):
-            errors.append(
-                f"Nom de branche d'expérience invalide : {branch}"
-            )
+        if not experience_path or any(not segment for segment in path_segments):
+            errors.append(f"Nom de branche d'expérience invalide : {branch}")
 
     else:
-        errors.append(
-            f"Branche Git non prise en charge : {branch}"
-        )
+        errors.append(f"Branche Git non prise en charge : {branch}")
 
     if errors:
         raise BranchError(errors)
@@ -81,13 +69,11 @@ def validate_paths(
 
     if config["base"] != expected_base:
         errors.append(
-            f"base incorrecte. Attendu : {expected_base} ; "
-            f"obtenu : {config['base']}"
+            f"base incorrecte. Attendu : {expected_base} ; obtenu : {config['base']}"
         )
 
     if errors:
         raise ConfigurationError(errors)
-
 
 
 def validate_expected_fields(config: dict) -> None:
@@ -97,23 +83,17 @@ def validate_expected_fields(config: dict) -> None:
 
     for field in EXPECTED_REQUIRED_FIELDS:
         if field not in config:
-            errors.append(
-                f"Paramètre attendu manquant : {field}"
-            )
+            errors.append(f"Paramètre attendu manquant : {field}")
             continue
 
         value = config[field]
 
         if not isinstance(value, str):
-            errors.append(
-                f"Le paramètre {field} doit être une chaîne de caractères."
-            )
+            errors.append(f"Le paramètre {field} doit être une chaîne de caractères.")
             continue
 
         if not value.strip():
-            errors.append(
-                f"Le paramètre {field} ne peut pas être vide."
-            )
+            errors.append(f"Le paramètre {field} ne peut pas être vide.")
             continue
 
         if field == "expectedRemoteDir":
