@@ -1,6 +1,6 @@
 from lab_toolkit.decorators.cli import handle_errors
-from lab_toolkit.deployment.pipeline.apply_config_pipeline import apply_config_pipeline
-from lab_toolkit.deployment.pipeline.show_config_pipeline import show_config_pipeline
+from lab_toolkit.deployment.pipeline.apply_config import apply_config_pipeline
+from lab_toolkit.deployment.pipeline.show_config import show_config_pipeline
 from lab_toolkit.deployment.pipeline.validation_config import validate_pipeline
 
 

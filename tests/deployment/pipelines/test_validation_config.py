@@ -1,164 +1,172 @@
-from unittest.mock import patch
-
 import pytest
+from tests.tools.pipline_tools_test import MockConfig, assert_mock, mocks_function
 
-from lab_toolkit.deployment.pipeline.validation_config import validate_pipeline
-from lab_toolkit.exceptions import (
-    BranchError,
-    ConfigurationError,
-)
+from lab_toolkit.deployment.pipeline import validation_config
+from lab_toolkit.exceptions import BranchError, ConfigurationError
 
 
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_paths")
-@patch("lab_toolkit.deployment.pipeline.validation_config.build_expected_paths")
-@patch("lab_toolkit.deployment.pipeline.validation_config.get_current_branch")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
-def test_validate_pipeline_success(
-    mock_load_config,
-    mock_validate_required,
-    mock_load_expected,
-    mock_validate_expected,
-    mock_get_branch,
-    mock_build_paths,
-    mock_validate_paths,
-):
-    mock_load_config.return_value = {
-        "remoteDir": "/var/www/labs/socle",
-        "base": "/",
-    }
-    mock_load_expected.return_value = {
-        "expectedRemoteDir": "/var/www/labs",
-    }
-    mock_get_branch.return_value = "socle"
-    mock_build_paths.return_value = (
-        "/var/www/labs/socle",
-        "/",
-    )
-
-    validate_pipeline()
-
-    mock_load_config.assert_called_once()
-    mock_validate_required.assert_called_once()
-    mock_load_expected.assert_called_once()
-    mock_validate_expected.assert_called_once()
-    mock_get_branch.assert_called_once()
-    mock_build_paths.assert_called_once_with(
-        "socle",
-        "/var/www/labs",
-    )
-    mock_validate_paths.assert_called_once()
+def test_validate_pipeline_success(monkeypatch):
+    # prepare
+    mocks = [
+        MockConfig(
+            name="load_config",
+            return_value={"remoteDir": "/var/www/labs/socle", "base": "/"},
+        ),
+        MockConfig(
+            name="validate_required_fields",
+        ),
+        MockConfig(
+            name="load_expected_config",
+            return_value={
+                "expectedRemoteDir": "/var/www/labs",
+            },
+        ),
+        MockConfig(name="validate_expected_fields"),
+        MockConfig(
+            name="get_current_branch",
+            return_value="socle",
+        ),
+        MockConfig(
+            name="build_expected_paths",
+            return_value=(
+                "/var/www/labs/socle",
+                "/",
+            ),
+            expected_args=("socle", "/var/www/labs"),
+        ),
+        MockConfig(name="validate_paths"),
+    ]
+    mocks_function(validation_config, mocks, monkeypatch)
+    # execute
+    validation_config.validate_pipeline()
+    # test
+    assert_mock(mocks)
 
 
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
-def test_validate_pipeline_stops_if_config_is_invalid(
-    mock_load_config,
-    mock_validate_required,
-):
-    mock_load_config.return_value = {}
+def test_validate_pipeline_stops_if_config_is_invalid(monkeypatch):
+    # prepare
+    mocks = [
+        MockConfig(name="load_config", return_value={}),
+        MockConfig(
+            name="validate_required_fields",
+            side_effect=ConfigurationError(["Paramètre manquant : base"]),
+        ),
+    ]
+    mocks_function(validation_config, mocks, monkeypatch)
 
-    mock_validate_required.side_effect = ConfigurationError(
-        ["Paramètre manquant : base"]
-    )
-
+    # execute
     with pytest.raises(ConfigurationError):
-        validate_pipeline()
+        validation_config.validate_pipeline()
 
-    mock_validate_required.assert_called_once()
+    assert_mock(mocks)
 
 
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
-def test_validate_pipeline_stops_if_expected_config_is_invalid(
-    mock_load_config,
-    mock_validate_required,
-    mock_load_expected,
-    mock_validate_expected,
-):
-    mock_load_config.return_value = {
-        "remoteDir": "/var/www/labs/socle",
-        "base": "/",
-    }
-    mock_load_expected.return_value = {}
+def test_validate_pipeline_stops_if_expected_config_is_invalid(monkeypatch):
+    # prepare
+    mocks = [
+        MockConfig(
+            "load_config",
+            return_value={
+                "remoteDir": "/var/www/labs/socle",
+                "base": "/",
+            },
+        ),
+        MockConfig("validate_required_fields"),
+        MockConfig("load_expected_config", return_value={}),
+        MockConfig(
+            "validate_expected_fields",
+            side_effect=ConfigurationError(
+                ["Paramètre attendu manquant : expectedRemoteDir"]
+            ),
+        ),
+    ]
+    mocks_function(validation_config, mocks, monkeypatch)
 
-    mock_validate_expected.side_effect = ConfigurationError(
-        ["Paramètre attendu manquant : expectedRemoteDir"]
-    )
-
+    # execute
     with pytest.raises(ConfigurationError):
-        validate_pipeline()
+        validation_config.validate_pipeline()
 
-    mock_validate_expected.assert_called_once()
+    # test
+    assert_mock(mocks)
 
 
-@patch("lab_toolkit.deployment.pipeline.validation_config.get_current_branch")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
-def test_validate_pipeline_stops_if_branch_is_invalid(
-    mock_load_config,
-    mock_validate_required,
-    mock_load_expected,
-    mock_validate_expected,
-    mock_get_branch,
-):
-    mock_load_config.return_value = {
-        "remoteDir": "/var/www/labs/socle",
-        "base": "/",
-    }
-    mock_load_expected.return_value = {
-        "expectedRemoteDir": "/var/www/labs",
-    }
-    mock_get_branch.return_value = "master"
-
-    with (
-        patch(
-            "lab_toolkit.deployment.pipeline.validation_config.build_expected_paths",
+def test_validate_pipeline_stops_if_branch_is_invalid(monkeypatch):
+    # prepare
+    mocks = [
+        MockConfig(
+            "load_config",
+            return_value={
+                "remoteDir": "/var/www/labs/socle",
+                "base": "/",
+            },
+        ),
+        MockConfig(
+            "validate_required_fields",
+        ),
+        MockConfig(
+            "load_expected_config",
+            return_value={
+                "expectedRemoteDir": "/var/www/labs",
+            },
+        ),
+        MockConfig(
+            "validate_expected_fields",
+        ),
+        MockConfig("get_current_branch", return_value="master"),
+        MockConfig(
+            "build_expected_paths",
             side_effect=BranchError(["Branche Git non prise en charge : master"]),
         ),
-        pytest.raises(BranchError),
-    ):
-        validate_pipeline()
+    ]
+    mocks_function(validation_config, mocks, monkeypatch)
+
+    # execute
+    with pytest.raises(BranchError):
+        validation_config.validate_pipeline()
+
+    # test
+    assert_mock(mocks)
 
 
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_paths")
-@patch("lab_toolkit.deployment.pipeline.validation_config.build_expected_paths")
-@patch("lab_toolkit.deployment.pipeline.validation_config.get_current_branch")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_expected_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_expected_config")
-@patch("lab_toolkit.deployment.pipeline.validation_config.validate_required_fields")
-@patch("lab_toolkit.deployment.pipeline.validation_config.load_config")
-def test_validate_pipeline_stops_if_paths_are_invalid(
-    mock_load_config,
-    mock_validate_required,
-    mock_load_expected,
-    mock_validate_expected,
-    mock_get_branch,
-    mock_build_paths,
-    mock_validate_paths,
-):
-    mock_load_config.return_value = {
-        "remoteDir": "/var/www/labs/incorrect",
-        "base": "/incorrect/",
-    }
-    mock_load_expected.return_value = {
-        "expectedRemoteDir": "/var/www/labs",
-    }
-    mock_get_branch.return_value = "socle"
-    mock_build_paths.return_value = (
-        "/var/www/labs/socle",
-        "/",
-    )
+def test_validate_pipeline_stops_if_paths_are_invalid(monkeypatch):
+    # prepare
+    mocks = [
+        MockConfig(
+            "load_config",
+            return_value={
+                "remoteDir": "/var/www/labs/incorrect",
+                "base": "/incorrect/",
+            },
+        ),
+        MockConfig(
+            "validate_required_fields",
+        ),
+        MockConfig(
+            "load_expected_config",
+            return_value={
+                "expectedRemoteDir": "/var/www/labs",
+            },
+        ),
+        MockConfig(
+            "validate_expected_fields",
+        ),
+        MockConfig("get_current_branch", return_value="socle"),
+        MockConfig(
+            "build_expected_paths",
+            return_value=(
+                "/var/www/labs/socle",
+                "/",
+            ),
+        ),
+        MockConfig(
+            "validate_paths", side_effect=ConfigurationError(["remoteDir incorrect"])
+        ),
+    ]
+    mocks_function(validation_config, mocks, monkeypatch)
 
-    mock_validate_paths.side_effect = ConfigurationError(["remoteDir incorrect"])
-
+    # execute
     with pytest.raises(ConfigurationError):
-        validate_pipeline()
+        validation_config.validate_pipeline()
 
-    mock_validate_paths.assert_called_once()
+    # test
+    assert_mock(mocks)

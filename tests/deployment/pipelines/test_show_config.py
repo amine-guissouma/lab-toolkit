@@ -1,4 +1,10 @@
-from lab_toolkit.deployment.pipeline import show_config_pipeline
+from tests.tools.pipline_tools_test import (
+    MockConfig,
+    assert_mock,
+    mocks_function,
+)
+
+from lab_toolkit.deployment.pipeline import show_config
 
 CURRENT_CONFIG = {
     "remoteDir": "/var/www/labs/test-project",
@@ -12,50 +18,58 @@ PROPOSED_CONFIG = {
 }
 
 
-def test_show_config_pipeline_displays_configuration(
-    monkeypatch,
-    capsys,
-):
-    monkeypatch.setattr(
-        show_config_pipeline,
-        "load_config",
-        lambda: CURRENT_CONFIG,
-    )
-    monkeypatch.setattr(
-        show_config_pipeline,
-        "build_deployment_config",
-        lambda: PROPOSED_CONFIG,
-    )
+def test_show_config_pipeline_displays_configuration(monkeypatch, capsys):
+    # Prepare
+    mocks = [
+        MockConfig(
+            name="load_config",
+            return_value=CURRENT_CONFIG,
+        ),
+        MockConfig(
+            name="build_deployment_config",
+            return_value=PROPOSED_CONFIG,
+        ),
+    ]
 
-    show_config_pipeline.show_config_pipeline()
+    mocks_function(show_config, mocks, monkeypatch)
 
+    # Execute
+    show_config.show_config_pipeline()
+
+    # Test
     output = capsys.readouterr().out
+
+    assert_mock(mocks)
 
     assert "Configuration actuelle :" in output
     assert "Configuration proposée :" in output
-
     assert "/var/www/labs/test-project" in output
     assert "/var/www/labs/lab-front-react/socle" in output
-
     assert "Aucune modification effectuée." in output
 
 
 def test_show_config_pipeline_does_not_modify_current_config(
     monkeypatch,
 ):
+    # Prepare
     original_config = CURRENT_CONFIG.copy()
 
-    monkeypatch.setattr(
-        show_config_pipeline,
-        "load_config",
-        lambda: CURRENT_CONFIG,
-    )
-    monkeypatch.setattr(
-        show_config_pipeline,
-        "build_deployment_config",
-        lambda: PROPOSED_CONFIG,
-    )
+    mocks = [
+        MockConfig(
+            name="load_config",
+            return_value=CURRENT_CONFIG,
+        ),
+        MockConfig(
+            name="build_deployment_config",
+            return_value=PROPOSED_CONFIG,
+        ),
+    ]
 
-    show_config_pipeline.show_config_pipeline()
+    mocks_function(show_config, mocks, monkeypatch)
 
+    # Execute
+    show_config.show_config_pipeline()
+
+    # Test
+    assert_mock(mocks)
     assert original_config == CURRENT_CONFIG

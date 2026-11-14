@@ -4,42 +4,71 @@ default_language_version:
 
 repos:
   # Vérification et correction du code Python
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.4
+  - repo: local
     hooks:
       - id: ruff-check
-        args: [--fix]
+        name: Ruff check
+        entry: python -m ruff check --fix
+        language: system
+        types: [python]
 
       - id: ruff-format
+        name: Ruff format
+        entry: python -m ruff format
+        language: system
+        types: [python]
 
   # Vérifications générales des fichiers
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+  - repo: local
     hooks:
       - id: trailing-whitespace
         name: Remove trailing whitespace
+        entry: python -m pre_commit_hooks.trailing_whitespace_fixer
+        language: system
+        types: [text]
 
       - id: end-of-file-fixer
         name: Ensure newline at end of files
+        entry: python -m pre_commit_hooks.end_of_file_fixer
+        language: system
+        types: [text]
 
       - id: check-yaml
         name: Check YAML syntax
+        entry: python -m pre_commit_hooks.check_yaml
+        language: system
+        types: [yaml]
 
       - id: check-toml
         name: Check TOML syntax
+        entry: python -m pre_commit_hooks.check_toml
+        language: system
+        types: [toml]
 
       - id: check-json
         name: Check JSON syntax
+        entry: python -m pre_commit_hooks.check_json
+        language: system
+        types: [json]
 
       - id: check-merge-conflict
         name: Check merge conflict markers
+        entry: python -m pre_commit_hooks.check_merge_conflict
+        language: system
+        types: [text]
 
       - id: detect-private-key
         name: Detect private keys
+        entry: python -m pre_commit_hooks.detect_private_key
+        language: system
+        types: [text]
 
       - id: check-added-large-files
         name: Check large files
+        entry: python -m pre_commit_hooks.check_added_large_files
+        language: system
         args: [--maxkb=500]
+        stages: [pre-commit]
 
   # Exécution des tests Python
   - repo: local
@@ -50,3 +79,4 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+        stages: [pre-commit]
