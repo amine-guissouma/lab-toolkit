@@ -1,6 +1,7 @@
 import pytest
 from tests.tools.pipline_tools_test import MockConfig, assert_mock, mocks_function
 
+from lab_toolkit.deployment.constants import BRANCH, DEPLOYMENT, DEPLOYMENT_EXPECTED
 from lab_toolkit.deployment.pipeline import validation_config
 from lab_toolkit.exceptions import BranchError, ConfigurationError
 
@@ -10,7 +11,10 @@ def test_validate_pipeline_success(monkeypatch):
     mocks = [
         MockConfig(
             name="load_config",
-            return_value={"remoteDir": "/var/www/labs/socle", "base": "/"},
+            return_value={
+                DEPLOYMENT.REMOTE_DIR: "/var/www/labs/socle",
+                DEPLOYMENT.BASE: "/",
+            },
         ),
         MockConfig(
             name="validate_required_fields",
@@ -18,13 +22,13 @@ def test_validate_pipeline_success(monkeypatch):
         MockConfig(
             name="load_expected_config",
             return_value={
-                "expectedRemoteDir": "/var/www/labs",
+                DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: "/var/www/labs",
             },
         ),
         MockConfig(name="validate_expected_fields"),
         MockConfig(
             name="get_current_branch",
-            return_value="socle",
+            return_value=BRANCH.SOCLE,
         ),
         MockConfig(
             name="build_expected_paths",
@@ -32,7 +36,7 @@ def test_validate_pipeline_success(monkeypatch):
                 "/var/www/labs/socle",
                 "/",
             ),
-            expected_args=("socle", "/var/www/labs"),
+            expected_args=(BRANCH.SOCLE, "/var/www/labs"),
         ),
         MockConfig(name="validate_paths"),
     ]
@@ -49,7 +53,7 @@ def test_validate_pipeline_stops_if_config_is_invalid(monkeypatch):
         MockConfig(name="load_config", return_value={}),
         MockConfig(
             name="validate_required_fields",
-            side_effect=ConfigurationError(["Paramètre manquant : base"]),
+            side_effect=ConfigurationError([f"Paramètre manquant : {DEPLOYMENT.BASE}"]),
         ),
     ]
     mocks_function(validation_config, mocks, monkeypatch)
@@ -67,8 +71,8 @@ def test_validate_pipeline_stops_if_expected_config_is_invalid(monkeypatch):
         MockConfig(
             "load_config",
             return_value={
-                "remoteDir": "/var/www/labs/socle",
-                "base": "/",
+                DEPLOYMENT.REMOTE_DIR: "/var/www/labs/socle",
+                DEPLOYMENT.BASE: "/",
             },
         ),
         MockConfig("validate_required_fields"),
@@ -76,7 +80,9 @@ def test_validate_pipeline_stops_if_expected_config_is_invalid(monkeypatch):
         MockConfig(
             "validate_expected_fields",
             side_effect=ConfigurationError(
-                ["Paramètre attendu manquant : expectedRemoteDir"]
+                [
+                    f"Paramètre attendu manquant : {DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR}"
+                ]
             ),
         ),
     ]
@@ -96,8 +102,8 @@ def test_validate_pipeline_stops_if_branch_is_invalid(monkeypatch):
         MockConfig(
             "load_config",
             return_value={
-                "remoteDir": "/var/www/labs/socle",
-                "base": "/",
+                DEPLOYMENT.REMOTE_DIR: "/var/www/labs/socle",
+                DEPLOYMENT.BASE: "/",
             },
         ),
         MockConfig(
@@ -106,7 +112,7 @@ def test_validate_pipeline_stops_if_branch_is_invalid(monkeypatch):
         MockConfig(
             "load_expected_config",
             return_value={
-                "expectedRemoteDir": "/var/www/labs",
+                DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: "/var/www/labs",
             },
         ),
         MockConfig(
@@ -134,8 +140,8 @@ def test_validate_pipeline_stops_if_paths_are_invalid(monkeypatch):
         MockConfig(
             "load_config",
             return_value={
-                "remoteDir": "/var/www/labs/incorrect",
-                "base": "/incorrect/",
+                DEPLOYMENT.REMOTE_DIR: "/var/www/labs/incorrect",
+                DEPLOYMENT.BASE: "/incorrect/",
             },
         ),
         MockConfig(
@@ -144,13 +150,13 @@ def test_validate_pipeline_stops_if_paths_are_invalid(monkeypatch):
         MockConfig(
             "load_expected_config",
             return_value={
-                "expectedRemoteDir": "/var/www/labs",
+                DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: "/var/www/labs",
             },
         ),
         MockConfig(
             "validate_expected_fields",
         ),
-        MockConfig("get_current_branch", return_value="socle"),
+        MockConfig("get_current_branch", return_value=BRANCH.SOCLE),
         MockConfig(
             "build_expected_paths",
             return_value=(
@@ -159,7 +165,8 @@ def test_validate_pipeline_stops_if_paths_are_invalid(monkeypatch):
             ),
         ),
         MockConfig(
-            "validate_paths", side_effect=ConfigurationError(["remoteDir incorrect"])
+            "validate_paths",
+            side_effect=ConfigurationError([f"{DEPLOYMENT.REMOTE_DIR} incorrect"]),
         ),
     ]
     mocks_function(validation_config, mocks, monkeypatch)

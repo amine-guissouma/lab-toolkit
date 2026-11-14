@@ -1,12 +1,13 @@
 from pathlib import PurePosixPath
 
+from lab_toolkit.deployment.constants import BRANCH, DEPLOYMENT, DEPLOYMENT_EXPECTED
 from lab_toolkit.exceptions import (
     BranchError,
     ConfigurationError,
 )
 
-REQUIRED_FIELDS = ("remoteDir", "base")
-EXPECTED_REQUIRED_FIELDS = ("expectedRemoteDir",)
+REQUIRED_FIELDS = (DEPLOYMENT.REMOTE_DIR, DEPLOYMENT.BASE)
+EXPECTED_REQUIRED_FIELDS = (DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR,)
 
 
 def validate_required_fields(config: dict) -> None:
@@ -35,11 +36,11 @@ def validate_branch(branch: str) -> None:
 
     errors = []
 
-    if branch == "socle":
+    if branch == BRANCH.SOCLE:
         return
 
-    if branch.startswith("experience/"):
-        experience_path = branch.removeprefix("experience/")
+    if branch.startswith(BRANCH.EXPERIENCE_PREFIX):
+        experience_path = branch.removeprefix(BRANCH.EXPERIENCE_PREFIX)
         path_segments = experience_path.split("/")
 
         if not experience_path or any(not segment for segment in path_segments):
@@ -61,15 +62,16 @@ def validate_paths(
 
     errors = []
 
-    if config["remoteDir"] != expected_remote:
+    if config[DEPLOYMENT.REMOTE_DIR] != expected_remote:
         errors.append(
-            f"remoteDir incorrect. Attendu : {expected_remote} ; "
-            f"obtenu : {config['remoteDir']}"
+            f"{DEPLOYMENT.REMOTE_DIR} incorrect. Attendu : {expected_remote} ; "
+            f"obtenu : {config[DEPLOYMENT.REMOTE_DIR]}"
         )
 
-    if config["base"] != expected_base:
+    if config[DEPLOYMENT.BASE] != expected_base:
         errors.append(
-            f"base incorrecte. Attendu : {expected_base} ; obtenu : {config['base']}"
+            f"{DEPLOYMENT.BASE} incorrecte. Attendu : {expected_base} ; "
+            f"obtenu : {config[DEPLOYMENT.BASE]}"
         )
 
     if errors:
@@ -96,7 +98,7 @@ def validate_expected_fields(config: dict) -> None:
             errors.append(f"Le paramètre {field} ne peut pas être vide.")
             continue
 
-        if field == "expectedRemoteDir":
+        if field == DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR:
             if value != value.strip():
                 errors.append(
                     "Le paramètre expectedRemoteDir ne doit pas contenir "

@@ -4,17 +4,21 @@ from tests.tools.pipline_tools_test import (
     mocks_function,
 )
 
+from lab_toolkit.deployment.constants import BRANCH, DEPLOYMENT
 from lab_toolkit.deployment.pipeline import show_config
 
+CURRENT_CONFIG_REMOTE_DIR = "/var/www/labs/test-project"
+
 CURRENT_CONFIG = {
-    "remoteDir": "/var/www/labs/test-project",
-    "base": "/",
+    DEPLOYMENT.REMOTE_DIR: "/var/www/labs/test-project",
+    DEPLOYMENT.BASE: "/",
     "description": "Configuration de test",
 }
 
+EXPECTED_REMOTE_DIR = "/var/www/labs/lab-front-react"
 PROPOSED_CONFIG = {
-    "remoteDir": "/var/www/labs/lab-front-react/socle",
-    "base": "/",
+    DEPLOYMENT.REMOTE_DIR: f"{EXPECTED_REMOTE_DIR}/{BRANCH.SOCLE}",
+    DEPLOYMENT.BASE: "/",
 }
 
 
@@ -43,8 +47,8 @@ def test_show_config_pipeline_displays_configuration(monkeypatch, capsys):
 
     assert "Configuration actuelle :" in output
     assert "Configuration proposée :" in output
-    assert "/var/www/labs/test-project" in output
-    assert "/var/www/labs/lab-front-react/socle" in output
+    assert CURRENT_CONFIG_REMOTE_DIR in output
+    assert f"{EXPECTED_REMOTE_DIR}/{BRANCH.SOCLE}" in output
     assert "Aucune modification effectuée." in output
 
 

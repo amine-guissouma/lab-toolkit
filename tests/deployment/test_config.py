@@ -4,18 +4,21 @@ from pathlib import Path
 import pytest
 
 from lab_toolkit.deployment.config import load_config, load_expected_config, save_config
+from lab_toolkit.deployment.constants import BRANCH, DEPLOYMENT, DEPLOYMENT_EXPECTED
 from lab_toolkit.exceptions import ConfigurationError
+
+EXPECTED_REMOTE_DIR = "/var/www/labs/lab-front-react"
 
 
 def test_load_config_valid(tmp_path):
     """Vérifie le chargement d'une configuration valide."""
 
     config_data = {
-        "remoteDir": "/var/www/labs/lab-front-react/socle",
-        "base": "/",
+        DEPLOYMENT.REMOTE_DIR: f"{EXPECTED_REMOTE_DIR}/{BRANCH.SOCLE}",
+        DEPLOYMENT.BASE: "/",
     }
 
-    config_file = tmp_path / "deployment.json"
+    config_file = tmp_path / DEPLOYMENT.FILENAME
     config_file.write_text(json.dumps(config_data), encoding="utf-8")
 
     config = load_config(tmp_path)
@@ -33,7 +36,7 @@ def test_load_config_missing_file(tmp_path):
 def test_load_config_invalid_json(tmp_path):
     """Vérifie le rejet d'un fichier JSON invalide."""
 
-    config_file = tmp_path / "deployment.json"
+    config_file = tmp_path / DEPLOYMENT.FILENAME
     config_file.write_text("{invalid json}", encoding="utf-8")
 
     with pytest.raises(ConfigurationError):
@@ -43,8 +46,10 @@ def test_load_config_invalid_json(tmp_path):
 def test_load_config_requires_json_object(tmp_path):
     """Vérifie que le contenu JSON doit être un objet."""
 
-    config_file = tmp_path / "deployment.json"
-    config_file.write_text('["socle", "experience"]', encoding="utf-8")
+    config_file = tmp_path / DEPLOYMENT.FILENAME
+    config_file.write_text(
+        f"[{BRANCH.SOCLE}, {BRANCH.EXPERIENCE_PREFIX}]", encoding="utf-8"
+    )
 
     with pytest.raises(ConfigurationError):
         load_config(tmp_path)
@@ -57,10 +62,10 @@ def test_load_expected_config_valid(tmp_path):
     """Vérifie le chargement de deployment_expected.json."""
 
     expected_data = {
-        "expectedRemoteDir": "/var/www/labs/lab-front-react",
+        DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: EXPECTED_REMOTE_DIR,
     }
 
-    config_file = tmp_path / "deployment_expected.json"
+    config_file = tmp_path / DEPLOYMENT_EXPECTED.FILENAME
     config_file.write_text(
         json.dumps(expected_data),
         encoding="utf-8",
@@ -81,7 +86,7 @@ def test_load_expected_config_missing_file(tmp_path):
 def test_load_expected_config_invalid_json(tmp_path):
     """Vérifie le rejet d'un JSON invalide."""
 
-    config_file = tmp_path / "deployment_expected.json"
+    config_file = tmp_path / DEPLOYMENT_EXPECTED.FILENAME
     config_file.write_text("{invalid json}", encoding="utf-8")
 
     with pytest.raises(ConfigurationError):
@@ -91,8 +96,10 @@ def test_load_expected_config_invalid_json(tmp_path):
 def test_load_expected_config_requires_json_object(tmp_path):
     """Vérifie que le contenu doit être un objet JSON."""
 
-    config_file = tmp_path / "deployment_expected.json"
-    config_file.write_text('["socle", "experience"]', encoding="utf-8")
+    config_file = tmp_path / DEPLOYMENT_EXPECTED.FILENAME
+    config_file.write_text(
+        f"[{BRANCH.SOCLE}, {BRANCH.EXPERIENCE_PREFIX}]", encoding="utf-8"
+    )
 
     with pytest.raises(ConfigurationError):
         load_expected_config(tmp_path)
@@ -102,14 +109,14 @@ def test_save_config_valid(tmp_path):
     """Vérifie l'enregistrement d'une configuration."""
 
     config = {
-        "remoteDir": "/var/www/labs/socle",
-        "base": "/",
+        DEPLOYMENT.REMOTE_DIR: "/var/www/labs/socle",
+        DEPLOYMENT.BASE: "/",
     }
 
     save_config(config, tmp_path)
 
     saved_config = json.loads(
-        (tmp_path / "deployment.json").read_text(encoding="utf-8")
+        (tmp_path / DEPLOYMENT.FILENAME).read_text(encoding="utf-8")
     )
 
     assert saved_config == config
@@ -121,10 +128,10 @@ def test_save_config_preserves_existing_file_on_write_failure(
 ):
     """Vérifie que l'ancien fichier reste intact si le remplacement échoue."""
 
-    config_file = tmp_path / "deployment.json"
+    config_file = tmp_path / DEPLOYMENT.FILENAME
     original_config = {
-        "remoteDir": "/var/www/labs/ancien",
-        "base": "/",
+        DEPLOYMENT.REMOTE_DIR: "/var/www/labs/ancien",
+        DEPLOYMENT.BASE: "/",
     }
 
     config_file.write_text(
@@ -138,8 +145,8 @@ def test_save_config_preserves_existing_file_on_write_failure(
     monkeypatch.setattr(type(config_file), "replace", mock_replace)
 
     new_config = {
-        "remoteDir": "/var/www/labs/nouveau",
-        "base": "/nouveau/",
+        DEPLOYMENT.REMOTE_DIR: "/var/www/labs/nouveau",
+        DEPLOYMENT.BASE: "/nouveau/",
     }
 
     with pytest.raises(ConfigurationError):
@@ -159,7 +166,7 @@ def test_save_config_supports_unicode(tmp_path):
 
     save_config(config, tmp_path)
 
-    content = (tmp_path / "deployment.json").read_text(encoding="utf-8")
+    content = (tmp_path / DEPLOYMENT.FILENAME).read_text(encoding="utf-8")
 
     assert "Expérience française" in content
 
@@ -168,9 +175,18 @@ def test_save_config_preserves_existing_file_on_replace_failure(
     tmp_path,
     monkeypatch,
 ):
-    config_path = tmp_path / "deployment.json"
+    # prepare
+    config_path = tmp_path / DEPLOYMENT.FILENAME
+
+    remote_dir_value_old = "/ancienne-valeur"
+
+    original_config = {
+        DEPLOYMENT.REMOTE_DIR: remote_dir_value_old,
+        DEPLOYMENT.BASE: "/",
+    }
+
     config_path.write_text(
-        '{"remoteDir": "/ancienne-valeur", "base": "/"}',
+        json.dumps(original_config),
         encoding="utf-8",
     )
 
@@ -180,17 +196,16 @@ def test_save_config_preserves_existing_file_on_replace_failure(
     monkeypatch.setattr(Path, "replace", fail_replace)
 
     new_config = {
-        "remoteDir": "/nouvelle-valeur",
-        "base": "/",
+        DEPLOYMENT.REMOTE_DIR: "/nouvelle-valeur",
+        DEPLOYMENT.BASE: "/",
     }
 
+    # test raises ConfigurationError
     with pytest.raises(ConfigurationError):
         save_config(new_config, tmp_path)
 
-    assert config_path.read_text(encoding="utf-8") == (
-        '{"remoteDir": "/ancienne-valeur", "base": "/"}'
-    )
-
+    # test
+    assert json.loads(config_path.read_text(encoding="utf-8")) == original_config
     assert not (tmp_path / "deployment.json.tmp").exists()
 
 
@@ -198,29 +213,42 @@ def test_save_config_handles_temporary_file_creation_failure(
     tmp_path,
     monkeypatch,
 ):
+    # prepare
     def fail_open(self, *args, **kwargs):
         raise OSError("Erreur simulée de création")
 
     monkeypatch.setattr(Path, "open", fail_open)
 
+    # test raises ConfigurationError
     with pytest.raises(ConfigurationError):
+        # execute
         save_config(
-            {"remoteDir": "/nouvelle-valeur", "base": "/"},
+            {DEPLOYMENT.REMOTE_DIR: "/nouvelle-valeur", DEPLOYMENT.BASE: "/"},
             tmp_path,
         )
 
 
 def test_load_config_supports_utf8_bom(tmp_path):
-    config_path = tmp_path / "deployment.json"
+    # prepare
+    config_path = tmp_path / DEPLOYMENT.FILENAME
 
+    remote_dir_value = "/var/www/test"
+    base_value = "/"
+
+    config_data = {
+        DEPLOYMENT.REMOTE_DIR: remote_dir_value,
+        DEPLOYMENT.BASE: base_value,
+    }
     config_path.write_text(
-        '\ufeff{"remoteDir": "/var/www/test", "base": "/"}',
+        "\ufeff" + json.dumps(config_data),
         encoding="utf-8",
     )
 
+    # execute
     config = load_config(tmp_path)
 
+    # test
     assert config == {
-        "remoteDir": "/var/www/test",
-        "base": "/",
+        DEPLOYMENT.REMOTE_DIR: remote_dir_value,
+        DEPLOYMENT.BASE: base_value,
     }

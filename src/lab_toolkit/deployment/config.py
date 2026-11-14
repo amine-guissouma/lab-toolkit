@@ -2,10 +2,8 @@ import contextlib
 import json
 from pathlib import Path
 
+from lab_toolkit.deployment.constants import DEPLOYMENT, DEPLOYMENT_EXPECTED
 from lab_toolkit.exceptions import ConfigurationError
-
-CONFIG_FILENAME = "deployment.json"
-EXPECTED_CONFIG_FILENAME = "deployment_expected.json"
 
 
 def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
@@ -39,13 +37,13 @@ def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
 def load_config(project_dir: Path | None = None) -> dict:
     """Charge deployment.json."""
 
-    return load_json_file(CONFIG_FILENAME, project_dir)
+    return load_json_file(DEPLOYMENT.FILENAME, project_dir)
 
 
 def load_expected_config(project_dir: Path | None = None) -> dict:
     """Charge deployment_expected.json."""
 
-    return load_json_file(EXPECTED_CONFIG_FILENAME, project_dir)
+    return load_json_file(DEPLOYMENT_EXPECTED.FILENAME, project_dir)
 
 
 def save_config(
@@ -57,7 +55,8 @@ def save_config(
     if project_dir is None:
         project_dir = Path.cwd()
 
-    config_path = project_dir / CONFIG_FILENAME
+    config_path = project_dir / DEPLOYMENT.FILENAME
+
     temporary_path = config_path.with_suffix(".json.tmp")
 
     try:

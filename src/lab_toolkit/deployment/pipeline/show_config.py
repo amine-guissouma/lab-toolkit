@@ -1,5 +1,6 @@
 from lab_toolkit.deployment.config import load_config
 from lab_toolkit.deployment.configuration import build_deployment_config
+from lab_toolkit.deployment.constants import DEPLOYMENT
 
 
 def show_config_pipeline() -> None:
@@ -12,11 +13,11 @@ def show_config_pipeline() -> None:
     }
 
     print("Configuration actuelle :")
-    print(f"  remoteDir : {current_config['remoteDir']}")
-    print(f"  base      : {current_config['base']}")
+    print(f"  {DEPLOYMENT.REMOTE_DIR}  : {current_config[DEPLOYMENT.REMOTE_DIR]}")
+    print(f"  {DEPLOYMENT.BASE}      : {current_config[DEPLOYMENT.BASE]}")
 
     print("\nConfiguration proposée :")
-    print(f"  remoteDir : {new_config['remoteDir']}")
-    print(f"  base      : {new_config['base']}")
+    print(f"  {DEPLOYMENT.REMOTE_DIR} : {new_config[DEPLOYMENT.REMOTE_DIR]}")
+    print(f"  {DEPLOYMENT.BASE}      : {new_config[DEPLOYMENT.BASE]}")
 
     print("\nAucune modification effectuée.")

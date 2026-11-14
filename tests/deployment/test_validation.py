@@ -1,5 +1,6 @@
 import pytest
 
+from lab_toolkit.deployment.constants import BRANCH, DEPLOYMENT, DEPLOYMENT_EXPECTED
 from lab_toolkit.deployment.validation import (
     validate_branch,
     validate_expected_fields,
@@ -11,7 +12,9 @@ from lab_toolkit.exceptions import (
     ConfigurationError,
 )
 
-EXPECTED_REMOTE = "/var/www/labs/lab-front-react/socle"
+EXPECTED_REMOTE_DIR = "/var/www/labs/lab-front-react"
+
+EXPECTED_REMOTE = f"{EXPECTED_REMOTE_DIR}/{BRANCH.SOCLE}"
 EXPECTED_BASE = "/"
 
 
@@ -20,8 +23,8 @@ def test_validate_required_fields_valid():
     """Vérifie une configuration avec tous les paramètres."""
 
     config = {
-        "remoteDir": EXPECTED_REMOTE,
-        "base": EXPECTED_BASE,
+        DEPLOYMENT.REMOTE_DIR: EXPECTED_REMOTE,
+        DEPLOYMENT.BASE: EXPECTED_BASE,
     }
 
     assert validate_required_fields(config) is None
@@ -31,44 +34,44 @@ def test_validate_required_fields_missing():
     """Vérifie la détection d'un paramètre manquant."""
 
     config = {
-        "remoteDir": EXPECTED_REMOTE,
+        DEPLOYMENT.REMOTE_DIR: EXPECTED_REMOTE,
     }
 
     with pytest.raises(ConfigurationError) as error:
         validate_required_fields(config)
 
     assert len(error.value.errors) == 1
-    assert "base" in error.value.errors[0]
+    assert DEPLOYMENT.BASE in error.value.errors[0]
 
 
 def test_validate_required_fields_wrong_type():
     """Vérifie le rejet d'un paramètre qui n'est pas une chaîne."""
 
     config = {
-        "remoteDir": 123,
-        "base": EXPECTED_BASE,
+        DEPLOYMENT.REMOTE_DIR: 123,
+        DEPLOYMENT.BASE: EXPECTED_BASE,
     }
 
     with pytest.raises(ConfigurationError) as error:
         validate_required_fields(config)
 
     assert len(error.value.errors) == 1
-    assert "remoteDir" in error.value.errors[0]
+    assert DEPLOYMENT.REMOTE_DIR in error.value.errors[0]
 
 
 def test_validate_required_fields_empty():
     """Vérifie le rejet d'un paramètre vide."""
 
     config = {
-        "remoteDir": EXPECTED_REMOTE,
-        "base": "   ",
+        DEPLOYMENT.REMOTE_DIR: EXPECTED_REMOTE,
+        DEPLOYMENT.BASE: "   ",
     }
 
     with pytest.raises(ConfigurationError) as error:
         validate_required_fields(config)
 
     assert len(error.value.errors) == 1
-    assert "base" in error.value.errors[0]
+    assert DEPLOYMENT.BASE in error.value.errors[0]
 
 
 # ===== validate_branch =====
@@ -77,23 +80,23 @@ def test_validate_required_fields_empty():
 def test_validate_branch_socle():
     """Vérifie que la branche socle est autorisée."""
 
-    assert validate_branch("socle") is None
+    assert validate_branch(BRANCH.SOCLE) is None
 
 
 def test_validate_branch_experience_nested():
     """Vérifie qu'une branche d'expérience imbriquée est autorisée."""
 
-    assert validate_branch("experience/auth/token") is None
+    assert validate_branch(f"{BRANCH.EXPERIENCE_PREFIX}auth/token") is None
 
 
 def test_validate_branch_experience_empty():
     """Vérifie le rejet d'une branche experience sans sujet."""
 
     with pytest.raises(BranchError) as error:
-        validate_branch("experience/")
+        validate_branch(BRANCH.EXPERIENCE_PREFIX)
 
     assert len(error.value.errors) == 1
-    assert "experience/" in error.value.errors[0]
+    assert BRANCH.EXPERIENCE_PREFIX in error.value.errors[0]
 
 
 def test_validate_branch_unknown():
@@ -113,8 +116,8 @@ def test_validate_paths_valid():
     """Vérifie que les chemins correspondent aux valeurs attendues."""
 
     config = {
-        "remoteDir": EXPECTED_REMOTE,
-        "base": EXPECTED_BASE,
+        DEPLOYMENT.REMOTE_DIR: EXPECTED_REMOTE,
+        DEPLOYMENT.BASE: EXPECTED_BASE,
     }
 
     assert (
@@ -131,8 +134,8 @@ def test_validate_paths_invalid():
     """Vérifie la détection de chemins incorrects."""
 
     config = {
-        "remoteDir": "/var/www/incorrect",
-        "base": "/incorrect/",
+        DEPLOYMENT.REMOTE_DIR: "/var/www/incorrect",
+        DEPLOYMENT.BASE: "/incorrect/",
     }
 
     with pytest.raises(ConfigurationError) as error:
@@ -143,8 +146,8 @@ def test_validate_paths_invalid():
         )
 
     assert len(error.value.errors) == 2
-    assert "remoteDir" in error.value.errors[0]
-    assert "base" in error.value.errors[1]
+    assert DEPLOYMENT.REMOTE_DIR in error.value.errors[0]
+    assert DEPLOYMENT.BASE in error.value.errors[1]
 
 
 # ===== validate_expected_fields =====
@@ -154,7 +157,7 @@ def test_validate_expected_fields_valid():
     """Vérifie une configuration attendue valide."""
 
     config = {
-        "expectedRemoteDir": "/var/www/labs/lab-front-react",
+        DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: EXPECTED_REMOTE_DIR,
     }
 
     assert validate_expected_fields(config) is None
@@ -169,42 +172,42 @@ def test_validate_expected_fields_missing():
         validate_expected_fields(config)
 
     assert len(error.value.errors) == 1
-    assert "expectedRemoteDir" in error.value.errors[0]
+    assert DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR in error.value.errors[0]
 
 
 def test_validate_expected_fields_wrong_type():
     """Vérifie le rejet d'un paramètre qui n'est pas une chaîne."""
 
     config = {
-        "expectedRemoteDir": 123,
+        DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: 123,
     }
 
     with pytest.raises(ConfigurationError) as error:
         validate_expected_fields(config)
 
     assert len(error.value.errors) == 1
-    assert "expectedRemoteDir" in error.value.errors[0]
+    assert DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR in error.value.errors[0]
 
 
 def test_validate_expected_fields_empty():
     """Vérifie le rejet d'un paramètre vide."""
 
     config = {
-        "expectedRemoteDir": "   ",
+        DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: "   ",
     }
 
     with pytest.raises(ConfigurationError) as error:
         validate_expected_fields(config)
 
     assert len(error.value.errors) == 1
-    assert "expectedRemoteDir" in error.value.errors[0]
+    assert DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR in error.value.errors[0]
 
 
 def test_validate_expected_fields_relative_path():
     """Vérifie le rejet d'un chemin relatif."""
 
     config = {
-        "expectedRemoteDir": "var/www/labs/lab-front-react",
+        DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: "var/www/labs/lab-front-react",
     }
 
     with pytest.raises(ConfigurationError) as error:
@@ -218,7 +221,7 @@ def test_validate_expected_fields_path_with_surrounding_spaces():
     """Vérifie le rejet des espaces autour du chemin."""
 
     config = {
-        "expectedRemoteDir": " /var/www/labs/lab-front-react ",
+        DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR: " /var/www/labs/lab-front-react ",
     }
 
     with pytest.raises(ConfigurationError) as error:

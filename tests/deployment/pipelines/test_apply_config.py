@@ -1,15 +1,19 @@
+from lab_toolkit.deployment.constants import BRANCH, DEPLOYMENT
 from lab_toolkit.deployment.pipeline import apply_config
 
+CURRENT_CONFIG_REMOTE_DIR = "/var/www/labs/test-project"
+
 CURRENT_CONFIG = {
-    "remoteDir": "/var/www/labs/test-project",
-    "base": "/",
+    DEPLOYMENT.REMOTE_DIR: "/var/www/labs/test-project",
+    DEPLOYMENT.BASE: "/",
     "description": "Configuration de test",
     "environment": "development",
 }
 
+EXPECTED_REMOTE_DIR = "/var/www/labs/lab-front-react"
 PROPOSED_CONFIG = {
-    "remoteDir": "/var/www/labs/lab-front-react/socle",
-    "base": "/",
+    DEPLOYMENT.REMOTE_DIR: f"{EXPECTED_REMOTE_DIR}/{BRANCH.SOCLE}",
+    DEPLOYMENT.BASE: "/",
 }
 
 
@@ -46,8 +50,8 @@ def test_apply_config_pipeline_saves_configuration(
         }
     ]
 
-    assert "remoteDir : /var/www/labs/lab-front-react/socle" in output
-    assert "base      : /" in output
+    assert f"{DEPLOYMENT.REMOTE_DIR} : {EXPECTED_REMOTE_DIR}/{BRANCH.SOCLE}" in output
+    assert f"{DEPLOYMENT.BASE}      : /" in output
 
 
 def test_apply_config_pipeline_preserves_additional_fields(

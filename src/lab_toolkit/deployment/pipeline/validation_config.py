@@ -2,6 +2,7 @@ from lab_toolkit.deployment.config import (
     load_config,
     load_expected_config,
 )
+from lab_toolkit.deployment.constants import DEPLOYMENT_EXPECTED
 from lab_toolkit.deployment.git import get_current_branch
 from lab_toolkit.deployment.paths import build_expected_paths
 from lab_toolkit.deployment.validation import (
@@ -24,7 +25,7 @@ def validate_pipeline() -> None:
 
     expected_remote, expected_base = build_expected_paths(
         branch,
-        expected_config["expectedRemoteDir"],
+        expected_config[DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR],
     )
     validate_paths(
         config,
