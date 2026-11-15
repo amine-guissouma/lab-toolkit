@@ -10,6 +10,9 @@ class DeploymentConstants:
     REMOTE_DIR: str = "remoteDir"
     BASE: str = "base"
 
+    DEFAULT_REMOTE_DIR: str = "socle"
+    DEFAULT_BASE: str = "/"
+
     EXPERIENCES_DIR: str = "experiences"
 
 

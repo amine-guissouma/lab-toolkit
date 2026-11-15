@@ -252,3 +252,58 @@ def test_load_config_supports_utf8_bom(tmp_path):
         DEPLOYMENT.REMOTE_DIR: remote_dir_value,
         DEPLOYMENT.BASE: base_value,
     }
+
+
+def test_create_json_file_if_missing(tmp_path):
+    """Vérifie la création d'un fichier JSON absent."""
+
+    from lab_toolkit.deployment.config import create_json_file_if_missing
+
+    config = {
+        DEPLOYMENT.REMOTE_DIR: DEPLOYMENT.DEFAULT_REMOTE_DIR,
+        DEPLOYMENT.BASE: DEPLOYMENT.DEFAULT_BASE,
+    }
+
+    created = create_json_file_if_missing(
+        DEPLOYMENT.FILENAME,
+        config,
+        tmp_path,
+    )
+
+    saved_config = json.loads(
+        (tmp_path / DEPLOYMENT.FILENAME).read_text(encoding="utf-8")
+    )
+
+    assert created is True
+    assert saved_config == config
+
+
+def test_create_json_file_if_missing_does_not_overwrite(tmp_path):
+    """Vérifie qu'un fichier existant n'est jamais écrasé."""
+
+    from lab_toolkit.deployment.config import create_json_file_if_missing
+
+    config_path = tmp_path / DEPLOYMENT.FILENAME
+    original_config = {
+        DEPLOYMENT.REMOTE_DIR: "/ancienne-valeur",
+        DEPLOYMENT.BASE: "/",
+    }
+
+    config_path.write_text(
+        json.dumps(original_config),
+        encoding="utf-8",
+    )
+
+    created = create_json_file_if_missing(
+        DEPLOYMENT.FILENAME,
+        {
+            DEPLOYMENT.REMOTE_DIR: DEPLOYMENT.DEFAULT_REMOTE_DIR,
+            DEPLOYMENT.BASE: DEPLOYMENT.DEFAULT_BASE,
+        },
+        tmp_path,
+    )
+
+    saved_config = json.loads(config_path.read_text(encoding="utf-8"))
+
+    assert created is False
+    assert saved_config == original_config

@@ -85,3 +85,23 @@ def test_commands_handle_pipeline_errors(
 
     assert result == 1
     assert "ERREUR : - Erreur de test" in output
+
+
+def test_init_calls_pipeline(monkeypatch, capsys):
+    """Vérifie que la commande init appelle son pipeline."""
+
+    called = []
+
+    monkeypatch.setattr(
+        deployment,
+        "init_config_pipeline",
+        lambda: called.append(True),
+    )
+
+    result = deployment.init(SimpleNamespace())
+
+    output = capsys.readouterr().out
+
+    assert result == 0
+    assert called == [True]
+    assert output == "Initialisation de la configuration terminée.\n"

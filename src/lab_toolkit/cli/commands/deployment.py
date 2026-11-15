@@ -1,5 +1,6 @@
 from lab_toolkit.decorators.cli import handle_errors
 from lab_toolkit.deployment.pipeline.apply_config import apply_config_pipeline
+from lab_toolkit.deployment.pipeline.init_config import init_config_pipeline
 from lab_toolkit.deployment.pipeline.show_config import show_config_pipeline
 from lab_toolkit.deployment.pipeline.validation_config import validate_pipeline
 
@@ -19,7 +20,14 @@ def show_config(args):
 @handle_errors("Configuration de déploiement mise à jour.")
 def apply_config(args):
     """Calcule et enregistre la configuration de déploiement."""
+
     apply_config_pipeline()
+
+
+@handle_errors("Initialisation de la configuration terminée.")
+def init(args):
+    """Initialise les fichiers de configuration de déploiement."""
+    init_config_pipeline()
 
 
 def add_deployment_commands(subparsers):
@@ -32,6 +40,12 @@ def add_deployment_commands(subparsers):
         dest="deployment_command",
         required=True,
     )
+
+    init_parser = deployment_subparsers.add_parser(
+        "init",
+        help="Initialiser les fichiers de configuration de déploiement.",
+    )
+    init_parser.set_defaults(func=init)
 
     validate_parser = deployment_subparsers.add_parser(
         "validate",

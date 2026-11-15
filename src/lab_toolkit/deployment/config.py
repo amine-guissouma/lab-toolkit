@@ -34,6 +34,39 @@ def load_json_file(filename: str, project_dir: Path | None = None) -> dict:
     return config
 
 
+def create_json_file_if_missing(
+    filename: str,
+    config: dict,
+    project_dir: Path | None = None,
+) -> bool:
+    """Crée un fichier JSON uniquement s'il n'existe pas."""
+
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    config_path = project_dir / filename
+
+    try:
+        with config_path.open("x", encoding="utf-8") as config_file:
+            json.dump(
+                config,
+                config_file,
+                indent=4,
+                ensure_ascii=False,
+            )
+            config_file.write("\n")
+
+    except FileExistsError:
+        return False
+
+    except OSError as error:
+        raise ConfigurationError(
+            f"Impossible de créer {config_path} : {error}"
+        ) from error
+
+    return True
+
+
 def load_config(project_dir: Path | None = None) -> dict:
     """Charge deployment.json."""
 

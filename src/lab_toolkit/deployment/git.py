@@ -25,3 +25,29 @@ def get_current_branch() -> str:
         raise GitError("Impossible de déterminer la branche Git courante.")
 
     return branch
+
+
+def local_branch_exists(branch: str) -> bool:
+    """Vérifie si une branche Git existe localement."""
+
+    try:
+        result = subprocess.run(
+            ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"],
+            cwd=Path.cwd(),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+    except OSError as error:
+        raise GitError(
+            "Impossible de vérifier l'existence de la branche Git."
+        ) from error
+
+    if result.returncode == 0:
+        return True
+
+    if result.returncode == 1:
+        return False
+
+    raise GitError(f"Impossible de vérifier l'existence de la branche locale {branch}.")
