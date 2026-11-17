@@ -6,58 +6,56 @@ from lab_toolkit.cli.commands import deployment
 from lab_toolkit.exceptions import BranchError, ConfigurationError
 
 
-def test_validate_calls_pipeline(monkeypatch, capsys):
+def test_validate_calls_pipeline(monkeypatch):
+    # prepare
     called = []
 
     monkeypatch.setattr(
         deployment,
-        "validate_pipeline",
+        deployment.validate_pipeline.__name__,
         lambda: called.append(True),
     )
-
+    # execute
     result = deployment.validate(SimpleNamespace())
 
-    output = capsys.readouterr().out
-
+    # test
     assert result == 0
     assert called == [True]
-    assert output == "Configuration de déploiement valide.\n"
 
 
-def test_show_config_calls_pipeline(monkeypatch, capsys):
+def test_show_config_calls_pipeline(monkeypatch):
+    # prepare
     called = []
 
     monkeypatch.setattr(
         deployment,
-        "show_config_pipeline",
+        deployment.show_config_pipeline.__name__,
         lambda: called.append(True),
     )
-
+    # execute
     result = deployment.show_config(SimpleNamespace())
 
-    output = capsys.readouterr().out
-
+    # test
     assert result == 0
     assert called == [True]
-    assert output == "Aucune modification effectuée.\n"
 
 
-def test_apply_config_calls_pipeline(monkeypatch, capsys):
+def test_apply_config_calls_pipeline(monkeypatch):
+    # prepare
     called = []
 
     monkeypatch.setattr(
         deployment,
-        "apply_config_pipeline",
+        deployment.apply_config_pipeline.__name__,
         lambda: called.append(True),
     )
 
+    # execute
     result = deployment.apply_config(SimpleNamespace())
 
-    output = capsys.readouterr().out
-
+    # test
     assert result == 0
     assert called == [True]
-    assert output == "Configuration de déploiement mise à jour.\n"
 
 
 @pytest.mark.parametrize(
@@ -69,39 +67,39 @@ def test_apply_config_calls_pipeline(monkeypatch, capsys):
 )
 def test_commands_handle_pipeline_errors(
     monkeypatch,
-    capsys,
     command,
     pipeline_name,
     exception,
 ):
+
+    # prepare
     def raise_error():
         raise exception(["Erreur de test"])
 
     monkeypatch.setattr(deployment, pipeline_name, raise_error)
 
+    # execute
     result = getattr(deployment, command)(SimpleNamespace())
 
-    output = capsys.readouterr().out
-
+    # test
     assert result == 1
-    assert "ERREUR : - Erreur de test" in output
 
 
-def test_init_calls_pipeline(monkeypatch, capsys):
+def test_init_calls_pipeline(monkeypatch):
     """Vérifie que la commande init appelle son pipeline."""
 
+    # prepare
     called = []
 
     monkeypatch.setattr(
         deployment,
-        "init_config_pipeline",
+        deployment.init_config_pipeline.__name__,
         lambda: called.append(True),
     )
 
+    # execute
     result = deployment.init(SimpleNamespace())
 
-    output = capsys.readouterr().out
-
+    # test
     assert result == 0
     assert called == [True]
-    assert output == "Initialisation de la configuration terminée.\n"

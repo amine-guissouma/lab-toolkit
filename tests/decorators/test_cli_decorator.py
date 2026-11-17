@@ -1,55 +1,78 @@
 import pytest
 
+from lab_toolkit.cli.exception import CliConfigurationError
 from lab_toolkit.decorators.cli import handle_errors
 from lab_toolkit.exceptions import (
     ConfigurationError,
     GitError,
+    LabToolkitError,
 )
 
 
-def test_handle_errors_success(capsys):
-    @handle_errors("Opération réussie.")
-    def command():
-        pass
+def test_handle_errors_success():
+    # prepare
 
+    executed = []
+
+    @handle_errors((LabToolkitError,))
+    def command():
+        executed.append(True)
+
+    # execute
     result = command()
 
-    captured = capsys.readouterr()
-
+    # test
     assert result == 0
-    assert captured.out == "Opération réussie.\n"
+    assert executed == [True]
 
 
-def test_handle_errors_configuration_error(capsys):
-    @handle_errors("Opération réussie.")
+def test_handle_errors_configuration_error():
+    # prepare
+    @handle_errors((LabToolkitError,))
     def command():
         raise ConfigurationError(["Configuration invalide"])
 
+    # execute
     result = command()
 
-    captured = capsys.readouterr()
-
+    # test
     assert result == 1
-    assert captured.out == ("ERREUR : - Configuration invalide\n")
 
 
-def test_handle_errors_git_error(capsys):
-    @handle_errors("Opération réussie.")
+def test_handle_errors_git_error():
+    # prepare
+    @handle_errors((LabToolkitError,))
     def command():
         raise GitError("Erreur Git")
 
+    # execute
     result = command()
 
-    captured = capsys.readouterr()
-
+    # test
     assert result == 1
-    assert captured.out == "ERREUR : Erreur Git\n"
 
 
 def test_handle_errors_unexpected_exception():
-    @handle_errors("Opération réussie.")
+    # prepare
+    @handle_errors((LabToolkitError,))
     def command():
         raise ValueError("Erreur inattendue")
 
+    # execute / test
     with pytest.raises(ValueError, match="Erreur inattendue"):
         command()
+
+
+@pytest.mark.parametrize(
+    "internal_exceptions",
+    [
+        None,
+        (),
+        "LabToolkitError",
+        (str,),
+    ],
+)
+def test_handle_errors_requires_internal_exceptions(internal_exceptions):
+    # execute / test
+    with pytest.raises(CliConfigurationError):
+        handle_errors(internal_exceptions)

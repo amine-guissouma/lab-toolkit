@@ -112,3 +112,26 @@ def validate_expected_fields(config: dict) -> None:
 
     if errors:
         raise ConfigurationError(errors)
+
+
+def validate_socle_current_branche(current_branch: str, is_socle_exists: bool):
+    if not is_socle_exists:
+        raise BranchError(
+            [
+                f"ATTENTION La branche locale {BRANCH.SOCLE} n'existe pas.",
+                "Veuillez la créer et basculer dessus avec les commandes :",
+                f"git switch -c {BRANCH.SOCLE}",
+                "Puis relancez :",
+                "lab-toolkit deployment init",
+            ]
+        )
+    if current_branch != BRANCH.SOCLE:
+        raise BranchError(
+            [
+                f"ATTENTION La commande doit être exécutée sur la branche locale {BRANCH.SOCLE}.",
+                "Veuillez changer de branche avec la commande :",
+                f"git switch {BRANCH.SOCLE}",
+                "Puis relancez :",
+                "lab-toolkit deployment init",
+            ]
+        )

@@ -1,7 +1,4 @@
-from lab_toolkit.deployment.config import (
-    load_config,
-    load_expected_config,
-)
+from lab_toolkit.deployment.config import load_config, load_expected_config
 from lab_toolkit.deployment.constants import DEPLOYMENT_EXPECTED
 from lab_toolkit.deployment.git import get_current_branch
 from lab_toolkit.deployment.paths import build_expected_paths
@@ -12,7 +9,7 @@ from lab_toolkit.deployment.validation import (
 )
 
 
-def validate_pipeline() -> None:
+def validate_pipeline():
     """Orchestre le pipeline complet de validation du déploiement."""
 
     config = load_config()
@@ -27,8 +24,11 @@ def validate_pipeline() -> None:
         branch,
         expected_config[DEPLOYMENT_EXPECTED.EXPECTED_REMOTE_DIR],
     )
-    validate_paths(
-        config,
-        expected_remote,
-        expected_base,
-    )
+
+    validate_paths(config, expected_remote, expected_base)
+
+    return {
+        "Branche": branch,
+        "remoteDir": config.get("remoteDir"),
+        "base": config.get("base"),
+    }

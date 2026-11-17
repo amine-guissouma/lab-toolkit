@@ -24,3 +24,9 @@ def main():
 
     args = parser.parse_args()
     return args.func(args)
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())

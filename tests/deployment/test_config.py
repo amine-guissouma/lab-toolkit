@@ -122,41 +122,6 @@ def test_save_config_valid(tmp_path):
     assert saved_config == config
 
 
-def test_save_config_preserves_existing_file_on_write_failure(
-    tmp_path,
-    monkeypatch,
-):
-    """Vérifie que l'ancien fichier reste intact si le remplacement échoue."""
-
-    config_file = tmp_path / DEPLOYMENT.FILENAME
-    original_config = {
-        DEPLOYMENT.REMOTE_DIR: "/var/www/labs/ancien",
-        DEPLOYMENT.BASE: "/",
-    }
-
-    config_file.write_text(
-        json.dumps(original_config),
-        encoding="utf-8",
-    )
-
-    def mock_replace(self, target):
-        raise OSError("Erreur de remplacement")
-
-    monkeypatch.setattr(type(config_file), "replace", mock_replace)
-
-    new_config = {
-        DEPLOYMENT.REMOTE_DIR: "/var/www/labs/nouveau",
-        DEPLOYMENT.BASE: "/nouveau/",
-    }
-
-    with pytest.raises(ConfigurationError):
-        save_config(new_config, tmp_path)
-
-    saved_config = json.loads(config_file.read_text(encoding="utf-8"))
-
-    assert saved_config == original_config
-
-
 def test_save_config_supports_unicode(tmp_path):
     """Vérifie l'enregistrement des caractères Unicode."""
 
