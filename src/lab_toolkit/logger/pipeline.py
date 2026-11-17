@@ -2,11 +2,11 @@ import sys
 from functools import wraps
 from pathlib import Path
 
-from lab_toolkit.logger import LogConfig, log
-from lab_toolkit.logger.config import PipelineStep
-from lab_toolkit.logger.exceptions import LogConfigurationError
-from lab_toolkit.logger.tracker import FunctionTracker
-from lab_toolkit.logger.validation import validate_configuration
+from .config import LogConfig, PipelineStep
+from .exceptions import LogConfigurationError
+from .logger import log
+from .tracker import FunctionTracker
+from .validation import validate_configuration
 
 
 def _get_steps(tracker) -> tuple[PipelineStep, ...]:
@@ -15,8 +15,9 @@ def _get_steps(tracker) -> tuple[PipelineStep, ...]:
     )
 
 
-def _display_success(action, target, result, tracker):
+def _display_success(action, target, result, tracker, display_mode):
     """Affiche le rapport de succès."""
+
     details = dict(result) if isinstance(result, dict) else {}
 
     log.success(
@@ -26,18 +27,22 @@ def _display_success(action, target, result, tracker):
             target=target,
             details=details,
             steps=_get_steps(tracker),
+            display_mode=display_mode,
         )
     )
 
 
-def _display_error(action, target, tracker):
-    """Affiche le rapport d'erreur métier."""
+def _display_error(action, target, tracker, error, display_mode):
+    """Affiche le rapport d'erreur."""
+
     log.error(
         LogConfig(
             project=Path.cwd().name,
             action=action,
             target=target,
             steps=_get_steps(tracker),
+            display_mode=display_mode,
+            error_message=str(error),
         )
     )
 
@@ -48,8 +53,9 @@ def log_pipeline(
     included_modules=None,
     excluded_modules=None,
     internal_exceptions=None,
+    display_mode="simple",
 ):
-    """Décorateur générique de suivi et de journalisation d'un pipeline."""
+    """Décorateur générique de suivi et de journalisation."""
 
     validate_configuration(
         action,
@@ -57,6 +63,7 @@ def log_pipeline(
         included_modules,
         internal_exceptions,
         target,
+        display_mode,
     )
 
     def decorator(func):
@@ -75,14 +82,28 @@ def log_pipeline(
 
             try:
                 tracker.start()
-
                 result = func(*args, **kwargs)
-                _display_success(action, target, result, tracker)
+                tracker.stop()
+                _display_success(
+                    action,
+                    target,
+                    result,
+                    tracker,
+                    display_mode,
+                )
 
                 return result
 
-            except internal_exceptions:
-                _display_error(action, target, tracker)
+            except internal_exceptions as exc:
+                tracker.stop()
+                _display_error(
+                    action,
+                    target,
+                    tracker,
+                    exc,
+                    display_mode,
+                )
+
                 raise
 
             finally:

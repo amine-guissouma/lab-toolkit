@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from lab_toolkit.logger.exceptions import LogConfigurationError
+
 
 @dataclass(frozen=True)
 class LogLevelStyle:
@@ -63,4 +65,4 @@ class LogStyle:
         try:
             return styles[level.upper()]
         except KeyError:
-            raise ValueError(f"Niveau de log inconnu : {level}") from None
+            raise LogConfigurationError(f"Niveau de log inconnu : {level}") from None

@@ -2,9 +2,9 @@ import os
 import sys
 from typing import TextIO
 
-from lab_toolkit.logger.config import LogConfig
-from lab_toolkit.logger.formatter import LogFormatter
-from lab_toolkit.logger.styles import LogStyle
+from .config import LogConfig
+from .formatter import LogFormatter
+from .styles import LogStyle
 
 
 class Logger:
@@ -35,11 +35,7 @@ class Logger:
 
         return stream.isatty()
 
-    def _log(
-        self,
-        level: str,
-        config: LogConfig,
-    ) -> None:
+    def _log(self, level: str, config: LogConfig) -> None:
         stream = self._get_stream(level)
 
         message = self.formatter.format(
