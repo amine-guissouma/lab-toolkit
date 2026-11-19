@@ -1,32 +1,16 @@
-import argparse
+import sys
 
-from lab_toolkit.cli.commands.deployment import add_deployment_commands
+from lab_toolkit.cli.application.commands import register_commands
+from lab_toolkit.cli.application.config import DISTRIBUTION_NAME
+from lab_toolkit.cli.core.application import run_cli
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        prog="lab-toolkit",
-        description="Outils communs de développement des laboratoires.",
+    return run_cli(
+        distribution_name=DISTRIBUTION_NAME,
+        register_commands=register_commands,
     )
-
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="lab-toolkit 0.1.0",
-    )
-
-    subparsers = parser.add_subparsers(
-        dest="command",
-        required=True,
-    )
-
-    add_deployment_commands(subparsers)
-
-    args = parser.parse_args()
-    return args.func(args)
 
 
 if __name__ == "__main__":
-    import sys
-
     sys.exit(main())

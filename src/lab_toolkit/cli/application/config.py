@@ -1,3 +1,7 @@
+# application
+DISTRIBUTION_NAME: str = "lab-toolkit"
+
+# config logger
 EXCLUDED_MODULES = (
     "lab_toolkit.decorators.",
     "lab_toolkit.logger.",

@@ -1,6 +1,6 @@
 from functools import wraps
 
-from lab_toolkit.cli.exception import CliConfigurationError
+from lab_toolkit.cli.core.exception import CliConfigurationError
 
 
 def validate_internal_exceptions(internal_exceptions):

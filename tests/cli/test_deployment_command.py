@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from lab_toolkit.cli.commands import deployment
+from lab_toolkit.cli.application.commands import deployment
 from lab_toolkit.exceptions import BranchError, ConfigurationError
 
 

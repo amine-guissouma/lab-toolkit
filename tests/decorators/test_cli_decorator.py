@@ -1,7 +1,7 @@
 import pytest
 
-from lab_toolkit.cli.exception import CliConfigurationError
-from lab_toolkit.decorators.cli import handle_errors
+from lab_toolkit.cli.core.decorators.cli import handle_errors
+from lab_toolkit.cli.core.exception import CliConfigurationError
 from lab_toolkit.exceptions import (
     ConfigurationError,
     GitError,
