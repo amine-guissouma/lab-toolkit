@@ -1,7 +1,7 @@
 from lab_toolkit.decorators.cli import handle_errors
 from lab_toolkit.decorators.config import EXCLUDED_MODULES, INCLUDED_MODULES
 from lab_toolkit.exceptions import LabToolkitError
-from lab_toolkit.logger.pipeline import log_pipeline
+from lab_toolkit.logger import log_pipeline
 
 
 def cli_command(
@@ -29,6 +29,7 @@ def cli_command(
             included_modules=included_modules,
             excluded_modules=excluded_modules,
             internal_exceptions=(LabToolkitError,),
+            display_mode="pipeline",
         )(func)
 
         return handle_errors((LabToolkitError,))(decorated_func)

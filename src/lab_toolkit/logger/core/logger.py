@@ -2,9 +2,9 @@ import os
 import sys
 from typing import TextIO
 
-from .config import LogConfig
-from .formatter import LogFormatter
-from .styles import LogStyle
+from lab_toolkit.logger.config import LogConfig
+from lab_toolkit.logger.formatters import LogFormatter
+from lab_toolkit.logger.styling.styles import LogStyle
 
 
 class Logger:

@@ -1,7 +1,8 @@
+from lab_toolkit.logger.core.logger import Logger, log
+from lab_toolkit.logger.core.pipeline import log_pipeline
+from lab_toolkit.logger.styling.styles import LogLevelStyle, LogStyle
+
 from .config import LogConfig, PipelineStep
-from .logger import Logger, log
-from .pipeline import log_pipeline
-from .styles import LogLevelStyle, LogStyle
 
 __all__ = [
     "LogConfig",

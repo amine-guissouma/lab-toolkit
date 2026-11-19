@@ -1,4 +1,4 @@
-from .exceptions import LogConfigurationError
+from lab_toolkit.logger.exceptions import LogConfigurationError
 
 VALID_DISPLAY_MODES = {
     "simple",
