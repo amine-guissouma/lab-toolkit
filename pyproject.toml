@@ -1,36 +1,120 @@
 
+# ============================================================
+# LAB TOOLKIT
+# Configuration de construction, distribution et développement
+# ============================================================-
+
+
+# ============================================================
+# BUILD SYSTEM - SYSTÈME DE CONSTRUCTION DU PACKAGE
+# ============================================================
+
 [build-system]
 requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
+# ============================================================
+# PROJECT - MÉTADONNÉES DU PACKAGE
+# ============================================================
+
 [project]
+
 name = "lab-toolkit"
-version = "0.1.0"
+version = "0.1.0.dev0"
 description = "Outils communs de développement pour les laboratoires"
-readme = "README.md"
 requires-python = ">=3.14"
+
+readme = "README.md"
+
+license = "MIT"
+license-files = ["LICENSE"]
+
+
+authors = [{ name = "Amine Guissouma" }]
+
+keywords = ["cli", "deployment", "ci-cd", "git"]
+
 dependencies = []
 
+
+# ============================================================
+# PROJECT URLS - LIENS ASSOCIÉS AU PACKAGE
+# ============================================================
+
+[project.urls]
+
+Repository = "https://github.com/amine-guissouma/lab-toolkit"
+Index = "https://github.com/amine-guissouma/tech-lab-index"
+
+
+# ============================================================
+# PROJECT SCRIPTS - COMMANDES EXPOSÉES DANS LE TERMINAL
+# ============================================================
+
 [project.scripts]
+
 lab-toolkit = "lab_toolkit.cli.main:main"
 
+
+# ============================================================
+# SETUPTOOLS - DÉCOUVERTE DES PACKAGES PYTHON
+# ============================================================
+
 [tool.setuptools.packages.find]
+
 where = ["src"]
 
+
+# ============================================================
+# OPTIONAL DEPENDENCIES - DÉPENDANCES OPTIONNELLES
+# ============================================================
 [project.optional-dependencies]
+
 dev = [
     "pytest>=8.0",
     "ruff==0.17.4",
     "pre-commit>=4.7,<5",
     "pre-commit-hooks==6.0.0",
+    "coverage==7.17.3",
+    "pytest-cov==7.1.0",
 ]
+
+
+# ============================================================
+# COVERAGE - MESURE DE LA COUVERTURE DES TESTS
+# ============================================================
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+
+# ============================================================
+# COVERAGE REPORT - CONFIGURATION DU RAPPORT
+# ============================================================
+
+[tool.coverage.report]
+
+show_missing = true
+skip_covered = false
+
+
+# ============================================================
+# RUFF - QUALITÉ ET FORMATAGE DU CODE
+# ============================================================
 
 [tool.ruff]
 target-version = "py314"
 line-length = 88
 src = ["src"]
 
+# ============================================================
+# RUFF LINT - RÈGLES DE VÉRIFICATION DU CODE
+# ============================================================
+
+
 [tool.ruff.lint]
+
 select = [
     "E4",
     "E7",
@@ -42,10 +126,20 @@ select = [
     "SIM",
 ]
 
+
+# ============================================================
+# RUFF FORMAT - RÈGLES DE FORMATAGE
+# ============================================================
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
+
+
+# ============================================================
+# PYTEST - CONFIGURATION DES TESTS AUTOMATISÉS
+# ============================================================
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
