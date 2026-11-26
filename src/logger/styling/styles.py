@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from lab_toolkit.logger.exceptions import LogConfigurationError
+from logger.exceptions import LogConfigurationError
 
 
 @dataclass(frozen=True)

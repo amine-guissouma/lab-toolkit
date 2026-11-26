@@ -2,10 +2,10 @@ import sys
 from functools import wraps
 from pathlib import Path
 
-from lab_toolkit.logger.config import LogConfig, PipelineStep
-from lab_toolkit.logger.exceptions import LogConfigurationError
-from lab_toolkit.logger.tracking.tracker import FunctionTracker
-from lab_toolkit.logger.validation.validation import validate_configuration
+from logger.config import LogConfig, PipelineStep
+from logger.exceptions import LogConfigurationError
+from logger.tracking.tracker import FunctionTracker
+from logger.validation.validation import validate_configuration
 
 from .logger import log
 

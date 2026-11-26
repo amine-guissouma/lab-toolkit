@@ -3,7 +3,7 @@ from functools import wraps
 from lab_toolkit.cli.application.config import EXCLUDED_MODULES, INCLUDED_MODULES
 from lab_toolkit.cli.core.decorators.cli import handle_errors
 from lab_toolkit.exceptions import LabToolkitError
-from lab_toolkit.logger.core.pipeline import log_pipeline
+from logger.core.pipeline import log_pipeline
 
 
 def cli_command(
