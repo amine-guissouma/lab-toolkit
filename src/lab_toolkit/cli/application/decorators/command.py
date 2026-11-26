@@ -1,7 +1,7 @@
 from functools import wraps
 
+from cli.core.decorators import handle_errors
 from lab_toolkit.cli.application.config import EXCLUDED_MODULES, INCLUDED_MODULES
-from lab_toolkit.cli.core.decorators.cli import handle_errors
 from lab_toolkit.exceptions import LabToolkitError
 from logger.core.pipeline import log_pipeline
 

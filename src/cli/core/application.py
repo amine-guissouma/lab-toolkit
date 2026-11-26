@@ -1,6 +1,6 @@
 import argparse
 
-from lab_toolkit.cli.core.metadata import get_project_metadata
+from cli.core.metadata import get_project_metadata
 
 
 def run_cli(

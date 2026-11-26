@@ -1,8 +1,8 @@
 import sys
 
+from cli.core.application import run_cli
 from lab_toolkit.cli.application.commands import register_commands
 from lab_toolkit.cli.application.config import DISTRIBUTION_NAME
-from lab_toolkit.cli.core.application import run_cli
 
 
 def main():
