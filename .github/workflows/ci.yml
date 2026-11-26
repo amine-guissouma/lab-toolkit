@@ -10,4 +10,4 @@ jobs:
           python-version: "3.14"
       - run: pip install -e ".[dev]"
       - run: ruff check . && ruff format --check .
-      - run: pytes
+      - run: pytest
