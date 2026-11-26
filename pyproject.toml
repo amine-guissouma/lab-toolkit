@@ -143,3 +143,4 @@ line-ending = "lf"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
